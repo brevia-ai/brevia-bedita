@@ -31,15 +31,16 @@ class ChatlasEventHandler implements EventListenerInterface
     public function implementedEvents(): array
     {
         return [
+            'Model.afterDelete' => 'afterDelete',
             'Model.afterSave' => 'afterSave',
             'Associated.afterSave' => 'afterSaveAssociated',
         ];
     }
 
     /**
-     * After save listener for objects.
-     *
-     * Invalidate app cache if necessary.
+     * After save listener:
+     *  * create or update collections
+     *  * add, update or remove documents from collections
      *
      * @param \Cake\Event\EventInterface $event The dispatched event.
      * @param \Cake\Datasource\EntityInterface $entity The Entity saved.
@@ -53,9 +54,13 @@ class ChatlasEventHandler implements EventListenerInterface
         }
         $handler = new CollectionHandler();
         if ($type === 'collections') {
-            $handler->updateCollection($entity);
+            if ($entity->isNew()) {
+                $handler->createCollection($entity);
 
-            return;
+                return;
+            }
+
+            $handler->updateCollection($entity);
         }
         // Look if there is a `DocumentOf` relation
         $table = $this->fetchTable($type);
@@ -109,8 +114,25 @@ class ChatlasEventHandler implements EventListenerInterface
             if ($action === 'remove') {
                 $handler->removeDocument($collection, $document);
             } else {
-                $handler->updateDocument($collection, $document);
+                $handler->updateDocument($collection, $document, true);
             }
         }
+    }
+
+    /**
+     * After delete listener: remove collections
+     *
+     * @param \Cake\Event\EventInterface $event The dispatched event.
+     * @param \Cake\Datasource\EntityInterface $entity The Entity saved.
+     * @return void
+     */
+    public function afterDelete(EventInterface $event, EntityInterface $entity)
+    {
+        $type = (string)$entity->get('type');
+        if (!$entity instanceof ObjectEntity || $type !== 'collections') {
+            return;
+        }
+        $handler = new CollectionHandler();
+        $handler->removeCollection($entity);
     }
 }
