@@ -1,0 +1,221 @@
+<?php
+declare(strict_types=1);
+
+/**
+ * Chatlas BEdita plugin
+ *
+ * Copyright 2023 Atlas Srl
+ */
+namespace BEdita\Chatlas\Client;
+
+use Cake\Core\Configure;
+use Cake\Http\Client;
+use Cake\Http\Client\Response;
+use Cake\Http\Exception\HttpException as ExceptionHttpException;
+use Cake\Http\Exception\MethodNotAllowedException;
+use Cake\Log\LogTrait;
+
+/**
+ * Chatlas API Client.
+ */
+class ChatlasClient
+{
+    use LogTrait;
+
+    /**
+     * API internal HTTP client
+     *
+     * @var \Cake\Http\Client
+     */
+    protected $client = null;
+
+    /**
+     * Default content type in requests
+     */
+    public const DEFAULT_CONTENT_TYPE = 'application/json';
+
+    /**
+     * Client constructor
+     */
+    public function __construct()
+    {
+        $this->initialize();
+    }
+
+    /**
+     * Initializa client from configuration
+     *
+     * @return void
+     */
+    public function initialize(): void
+    {
+        $options = parse_url((string)Configure::read('Chatlas.apiUrl')) + [
+            'headers' => [
+                'Accept' => 'application/json',
+            ]];
+        $options['timeout'] = Configure::read('Chatlas.timeout', 30);
+        if (Configure::check('Chatlas.token')) {
+            $options['headers'][] = [
+                'Authorization' => sprintf('Bearer %s', Configure::read('Chatlas.token')),
+            ];
+        }
+
+        $this->client = new Client($options);
+    }
+
+    /**
+     * Proxy for GET requests to Chatlas API
+     *
+     * @param string $path The path for API request
+     * @param array $query The query params
+     * @param array $headers The request headers
+     * @return array
+     */
+    public function get(string $path = '', array $query = [], array $headers = []): array
+    {
+        return $this->apiRequest(compact('path', 'query', 'headers') + [
+            'method' => 'get',
+        ]);
+    }
+
+    /**
+     * Proxy for POST requests to Chatlas API
+     *
+     * @param string $path The path for API request
+     * @param array $body The body data
+     * @param array $headers The request headers
+     * @return array
+     */
+    public function post(string $path = '', array $body = [], array $headers = []): array
+    {
+        return $this->apiRequest(compact('path', 'body', 'headers') + [
+            'method' => 'post',
+        ]);
+    }
+
+    /**
+     * Proxy for PATCH requests to Chatlas API
+     *
+     * @param string $path The path for API request
+     * @param array $body The body data
+     * @param array $headers The request headers
+     * @return array
+     */
+    public function patch(string $path = '', array $body = [], array $headers = []): array
+    {
+        return $this->apiRequest(compact('path', 'body', 'headers') + [
+            'method' => 'patch',
+        ]);
+    }
+
+    /**
+     * Proxy for DELETE requests to Chatlas API
+     *
+     * @param string $path The path for API request
+     * @param array $body The body data
+     * @param array $headers The request headers
+     * @return array
+     */
+    public function delete(string $path = '', array $body = [], array $headers = []): array
+    {
+        return $this->apiRequest(compact('path', 'body', 'headers') + [
+            'method' => 'delete',
+        ]);
+    }
+
+    /**
+     * Routes a request to the API handling response and errors.
+     *
+     * `$options` are:
+     * - method => the HTTP request method
+     * - path => a string representing the complete endpoint path
+     * - query => an array of query strings
+     * - body => the body sent
+     * - headers => an array of headers
+     *
+     * @param array $options The request options
+     * @return array
+     */
+    protected function apiRequest(array $options): array
+    {
+        $options += [
+            'method' => '',
+            'path' => '',
+            'query' => null,
+            'body' => null,
+            'headers' => null,
+        ];
+
+        if (empty($options['body'])) {
+            $options['body'] = null;
+        }
+        if (is_array($options['body'])) {
+            $options['body'] = json_encode($options['body']);
+        }
+        if (!empty($options['body']) && empty($options['headers']['Content-Type'])) {
+            $options['headers']['Content-Type'] = 'application/json';
+        }
+
+        try {
+            $response = $this->sendRequest($options);
+            $statusCode = $response->getStatusCode();
+            if ($statusCode >= 400) {
+                throw new ExceptionHttpException('Chatlas API error', $statusCode);
+            }
+
+            return (array)$response->getJson();
+        } catch (\Throwable $e) {
+            $this->handleError($e);
+        }
+    }
+
+    /**
+     * Send request using options
+     *
+     * @param array $options Request options array
+     * @return \Cake\Http\Client\Response
+     */
+    protected function sendRequest(array $options): Response
+    {
+        $method = strtolower($options['method']);
+        if (!in_array($method, ['get', 'post', 'patch', 'delete'])) {
+            throw new MethodNotAllowedException();
+        }
+        $headers = ['headers' => (array)$options['headers']];
+        if ($method === 'get') {
+            return $this->client->get(
+                (string)$options['path'],
+                (string)$options['query'],
+                $headers
+            );
+        }
+
+        return call_user_func_array(
+            [$this->client, $method],
+            [
+                (string)$options['path'],
+                $options['body'],
+                $headers,
+            ]
+        );
+    }
+
+    /**
+     * Handle error.
+     *
+     * @param \Throwable $error The error thrown.
+     * @return void
+     */
+    protected function handleError(\Throwable $error): void
+    {
+        $status = $error->getCode();
+        if ($status < 100 || $status > 599) {
+            $status = 500;
+        }
+        $errorData = [
+            'status' => (string)$status,
+            'title' => $error->getMessage(),
+        ];
+        $this->log('[Chatlas] ' . $error->getMessage(), 'error');
+    }
+}
