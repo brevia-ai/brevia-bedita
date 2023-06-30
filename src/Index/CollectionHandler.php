@@ -147,6 +147,24 @@ class CollectionHandler
     }
 
     /**
+     * Upload file to index
+     *
+     * @param \Cake\Datasource\EntityInterface $collection Collection entity
+     * @param \Cake\Datasource\EntityInterface $entity Document entity
+     * @return void
+     */
+    public function uploadDocument(EntityInterface $collection, EntityInterface $entity): void
+    {
+        // $body = [
+        //     'content' => strip_tags((string)$entity->get('body')),
+        //     'collection_id' => $collection->get('collection_uuid'),
+        //     'document_id' => $entity->get('id'),
+        //     'metadata' => [],
+        // ];
+        // $this->chatlas->post('/index', $body);
+    }
+
+    /**
      * Update collection index for a document
      *
      * @param \Cake\Datasource\EntityInterface $collection Collection entity
@@ -165,6 +183,10 @@ class CollectionHandler
         if ($this->documentToRemove($entity)) {
             $this->removeDocument($collection, $entity);
 
+            return;
+        }
+        // see if some object properties have changed (no effect on `files` objects)
+        if ($entity->get('type') === 'files') {
             return;
         }
 
