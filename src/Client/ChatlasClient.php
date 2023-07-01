@@ -10,8 +10,9 @@ namespace BEdita\Chatlas\Client;
 
 use Cake\Core\Configure;
 use Cake\Http\Client;
+use Cake\Http\Client\FormData;
 use Cake\Http\Client\Response;
-use Cake\Http\Exception\HttpException as ExceptionHttpException;
+use Cake\Http\Exception\HttpException;
 use Cake\Http\Exception\MethodNotAllowedException;
 use Cake\Log\LogTrait;
 
@@ -94,6 +95,23 @@ class ChatlasClient
     }
 
     /**
+     * Proxy for POST multipart/form requests to Chatlas API
+     *
+     * @param string $path The path for API request
+     * @param array $body The body data
+     * @param array $headers The request headers
+     * @return array
+     */
+    public function postMultipart(string $path = '', FormData $form): array
+    {
+        return $this->apiRequest(compact('path') + [
+            'method' => 'post',
+            'body' => (string)$form,
+            'multipart' => true,
+        ]);
+    }
+
+    /**
      * Proxy for PATCH requests to Chatlas API
      *
      * @param string $path The path for API request
@@ -132,6 +150,7 @@ class ChatlasClient
      * - query => an array of query strings
      * - body => the body sent
      * - headers => an array of headers
+     * - multipart => multipart form data request
      *
      * @param array $options The request options
      * @return array
@@ -144,6 +163,7 @@ class ChatlasClient
             'query' => null,
             'body' => null,
             'headers' => null,
+            'multipart' => false,
         ];
 
         if (empty($options['body'])) {
@@ -152,7 +172,7 @@ class ChatlasClient
         if (is_array($options['body'])) {
             $options['body'] = json_encode($options['body']);
         }
-        if (!empty($options['body']) && empty($options['headers']['Content-Type'])) {
+        if (!empty($options['body']) && !$options['multipart'] && empty($options['headers']['Content-Type'])) {
             $options['headers']['Content-Type'] = 'application/json';
         }
 
@@ -160,7 +180,7 @@ class ChatlasClient
             $response = $this->sendRequest($options);
             $statusCode = $response->getStatusCode();
             if ($statusCode >= 400) {
-                throw new ExceptionHttpException('Chatlas API error', $statusCode);
+                throw new HttpException('Chatlas API error', $statusCode);
             }
 
             return (array)$response->getJson();

@@ -9,9 +9,11 @@ declare(strict_types=1);
 namespace BEdita\Chatlas\Index;
 
 use BEdita\Chatlas\Client\ChatlasClient;
-use Cake\Datasource\EntityInterface;
+use BEdita\Core\Filesystem\FilesystemRegistry;
+use BEdita\Core\Model\Entity\ObjectEntity;
+use Cake\Http\Client\FormData;
+use Cake\I18n\FrozenTime;
 use Cake\Log\LogTrait;
-use Cake\ORM\Locator\LocatorAwareTrait;
 use Cake\Utility\Hash;
 
 /**
@@ -19,7 +21,6 @@ use Cake\Utility\Hash;
  */
 class CollectionHandler
 {
-    use LocatorAwareTrait;
     use LogTrait;
 
     /**
@@ -68,40 +69,43 @@ class CollectionHandler
     /**
      * Create Chatlas collection
      *
-     * @param \Cake\Datasource\EntityInterface $collection Collection entity
+     * @param \BEdita\Core\Model\Entity\ObjectEntity $collection Collection entity
      * @return void
      */
-    public function createCollection(EntityInterface $collection): void
+    public function createCollection(ObjectEntity $collection): void
     {
         $msg = sprintf('Creating collection "%s"', $collection->get('title'));
         $this->log($msg, 'info');
 
         $result = $this->chatlas->post('/collections', $this->chatlasCollection($collection));
         $collection->set('collection_uuid', Hash::get($result, 'uuid'));
-        $this->fetchTable('Collections')->saveOrFail($collection);
+        $collection->set('collection_updated', new FrozenTime());
+        $collection->getTable()->saveOrFail($collection);
     }
 
     /**
      * Update Chatlas collection
      *
-     * @param \Cake\Datasource\EntityInterface $collection Collection entity
+     * @param \BEdita\Core\Model\Entity\ObjectEntity $collection Collection entity
      * @return void
      */
-    public function updateCollection(EntityInterface $collection): void
+    public function updateCollection(ObjectEntity $collection): void
     {
         $msg = sprintf('Updating collection "%s"', $collection->get('title'));
         $this->log($msg, 'info');
         $path = sprintf('/collections/%s', $collection->get('collection_uuid'));
         $this->chatlas->patch($path, $this->chatlasCollection($collection));
+        $collection->set('collection_updated', new FrozenTime());
+        $collection->getTable()->saveOrFail($collection);
     }
 
     /**
      * Fetch Chatlas collection fields
      *
-     * @param \Cake\Datasource\EntityInterface $collection Collection entity
+     * @param \BEdita\Core\Model\Entity\ObjectEntity $collection Collection entity
      * @return array
      */
-    protected function chatlasCollection(EntityInterface $collection): array
+    protected function chatlasCollection(ObjectEntity $collection): array
     {
         $fields = array_diff_key(
             $collection->toArray(),
@@ -117,10 +121,10 @@ class CollectionHandler
     /**
      * Remove Chatlas collection
      *
-     * @param \Cake\Datasource\EntityInterface $collection Collection entity
+     * @param \BEdita\Core\Model\Entity\ObjectEntity $collection Collection entity
      * @return void
      */
-    public function removeCollection(EntityInterface $collection): void
+    public function removeCollection(ObjectEntity $collection): void
     {
         $msg = sprintf('Removing collection "%s"', $collection->get('title'));
         $this->log($msg, 'info');
@@ -131,48 +135,67 @@ class CollectionHandler
     /**
      * Add document to collection index
      *
-     * @param \Cake\Datasource\EntityInterface $collection Collection entity
-     * @param \Cake\Datasource\EntityInterface $entity Document entity
+     * @param \BEdita\Core\Model\Entity\ObjectEntity $collection Collection entity
+     * @param \BEdita\Core\Model\Entity\ObjectEntity $entity Document entity
      * @return void
      */
-    public function addDocument(EntityInterface $collection, EntityInterface $entity): void
+    public function addDocument(ObjectEntity $collection, ObjectEntity $entity): void
     {
+        if ($entity->get('type') === 'files') {
+            $this->uploadDocument($collection, $entity);
+
+            return;
+        }
         $body = [
             'content' => strip_tags((string)$entity->get('body')),
             'collection_id' => $collection->get('collection_uuid'),
             'document_id' => $entity->get('id'),
-            'metadata' => [],
+            'metadata' => ['type' => $entity->get('type')],
         ];
         $this->chatlas->post('/index', $body);
+        $entity->set('index_updated', new FrozenTime());
+        $entity->getTable()->saveOrFail($entity);
     }
 
     /**
      * Upload file to index
      *
-     * @param \Cake\Datasource\EntityInterface $collection Collection entity
-     * @param \Cake\Datasource\EntityInterface $entity Document entity
+     * @param \BEdita\Core\Model\Entity\ObjectEntity $collection Collection entity
+     * @param \BEdita\Core\Model\Entity\ObjectEntity $entity Document entity
      * @return void
      */
-    public function uploadDocument(EntityInterface $collection, EntityInterface $entity): void
+    public function uploadDocument(ObjectEntity $collection, ObjectEntity $entity): void
     {
-        // $body = [
-        //     'content' => strip_tags((string)$entity->get('body')),
-        //     'collection_id' => $collection->get('collection_uuid'),
-        //     'document_id' => $entity->get('id'),
-        //     'metadata' => [],
-        // ];
-        // $this->chatlas->post('/index', $body);
+        $form = new FormData();
+        /** @var \BEdita\Core\Model\Entity\Stream @stream */
+        $stream = $entity->get('streams.0');
+        $resource = FilesystemRegistry::getMountManager()->readStream($stream->uri);
+        $form->addFile('file', $resource);
+        $form->addMany([
+            'collection_id' => $collection->get('collection_uuid'),
+            'document_id' => $entity->get('id'),
+            'metadata' => [
+                'type' => $entity->get('type'),
+                'file' => $stream->file_name,
+            ],
+        ]);
+        $this->chatlas->postMultipart(
+            '/index/upload',
+            $form
+        );
+        $entity->set('index_updated', new FrozenTime());
+        $entity->getTable()->saveOrFail($entity);
     }
 
     /**
      * Update collection index for a document
      *
-     * @param \Cake\Datasource\EntityInterface $collection Collection entity
-     * @param \Cake\Datasource\EntityInterface $entity Document entity
+     * @param \BEdita\Core\Model\Entity\ObjectEntity $collection Collection entity
+     * @param \BEdita\Core\Model\Entity\ObjectEntity $entity Document entity
      * @param bool $forceAdd Force add document action
      * @return void
      */
-    public function updateDocument(EntityInterface $collection, EntityInterface $entity, bool $forceAdd = false): void
+    public function updateDocument(ObjectEntity $collection, ObjectEntity $entity, bool $forceAdd = false): void
     {
         if ($entity->isNew() || $this->documentToAdd($entity) || $forceAdd) {
             $this->log($this->logMessage('Add', $collection, $entity), 'info');
@@ -203,10 +226,10 @@ class CollectionHandler
     /**
      * See if a document has to be removed from index
      *
-     * @param \Cake\Datasource\EntityInterface $entity Document entity
+     * @param \BEdita\Core\Model\Entity\ObjectEntity $entity Document entity
      * @return bool
      */
-    protected function documentToRemove(EntityInterface $entity): bool
+    protected function documentToRemove(ObjectEntity $entity): bool
     {
         if ($entity->isDirty('deleted') && $entity->get('deleted')) {
             return true;
@@ -222,10 +245,10 @@ class CollectionHandler
     /**
      * See if a document has to be added to index
      *
-     * @param \Cake\Datasource\EntityInterface $entity Document entity
+     * @param \BEdita\Core\Model\Entity\ObjectEntity $entity Document entity
      * @return bool
      */
-    protected function documentToAdd(EntityInterface $entity): bool
+    protected function documentToAdd(ObjectEntity $entity): bool
     {
         if ($entity->isDirty('deleted') && !$entity->get('deleted')) {
             return true;
@@ -242,11 +265,11 @@ class CollectionHandler
      * Log message on index action
      *
      * @param string $action Action to log
-     * @param \Cake\Datasource\EntityInterface $collection Collection entity
-     * @param \Cake\Datasource\EntityInterface $entity Document entity
+     * @param \BEdita\Core\Model\Entity\ObjectEntity $collection Collection entity
+     * @param \BEdita\Core\Model\Entity\ObjectEntity $entity Document entity
      * @return string
      */
-    protected function logMessage(string $action, EntityInterface $collection, EntityInterface $entity): string
+    protected function logMessage(string $action, ObjectEntity $collection, ObjectEntity $entity): string
     {
         return sprintf('%s document "%s"', $action, $entity->get('title')) .
             sprintf(' [collection "%s"]', $collection->get('title'));
@@ -255,14 +278,16 @@ class CollectionHandler
     /**
      * Remove document from collection index
      *
-     * @param \Cake\Datasource\EntityInterface $collection Collection entity
-     * @param \Cake\Datasource\EntityInterface $entity Document entity
+     * @param \BEdita\Core\Model\Entity\ObjectEntity $collection Collection entity
+     * @param \BEdita\Core\Model\Entity\ObjectEntity $entity Document entity
      * @return void
      */
-    public function removeDocument(EntityInterface $collection, EntityInterface $entity): void
+    public function removeDocument(ObjectEntity $collection, ObjectEntity $entity): void
     {
         $this->log($this->logMessage('Remove', $collection, $entity), 'info');
         $path = sprintf('/index/%s/%s', $collection->get('collection_uuid'), $entity->get('id'));
         $this->chatlas->delete($path);
+        $entity->set('index_updated', new FrozenTime());
+        $entity->getTable()->saveOrFail($entity);
     }
 }
