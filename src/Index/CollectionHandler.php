@@ -9,8 +9,10 @@ declare(strict_types=1);
 namespace BEdita\Chatlas\Index;
 
 use BEdita\Chatlas\Client\ChatlasClient;
+use BEdita\Chatlas\Event\ChatlasEventHandler;
 use BEdita\Core\Filesystem\FilesystemRegistry;
 use BEdita\Core\Model\Entity\ObjectEntity;
+use Cake\Event\EventManager;
 use Cake\Http\Client\FormData;
 use Cake\I18n\FrozenTime;
 use Cake\Log\LogTrait;
@@ -64,6 +66,7 @@ class CollectionHandler
     public function __construct()
     {
         $this->chatlas = new ChatlasClient();
+        FrozenTime::setJsonEncodeFormat("yyyy-MM-dd'T'HH:mm:ssxxx");
     }
 
     /**
@@ -79,8 +82,26 @@ class CollectionHandler
 
         $result = $this->chatlas->post('/collections', $this->chatlasCollection($collection));
         $collection->set('collection_uuid', Hash::get($result, 'uuid'));
-        $collection->set('collection_updated', new FrozenTime());
-        $collection->getTable()->saveOrFail($collection);
+        $collection->set('collection_updated', date('c'));
+        $this->saveObject($collection);
+    }
+
+    /**
+     * Save object entity removing `afterSave` listener to avoid infinite loops
+     *
+     * @param \BEdita\Core\Model\Entity\ObjectEntity $entity Object entity
+     * @return void
+     */
+    protected function saveObject(ObjectEntity $entity): void
+    {
+        $listeners = EventManager::instance()->listeners('Model.afterSave');
+        foreach ($listeners as $listener) {
+            $instance = Hash::get($listener, 'callable.0');
+            if ($instance && $instance instanceof ChatlasEventHandler) {
+                EventManager::instance()->off($instance);
+            }
+        }
+        $entity->getTable()->saveOrFail($entity);
     }
 
     /**
@@ -95,8 +116,8 @@ class CollectionHandler
         $this->log($msg, 'info');
         $path = sprintf('/collections/%s', $collection->get('collection_uuid'));
         $this->chatlas->patch($path, $this->chatlasCollection($collection));
-        $collection->set('collection_updated', new FrozenTime());
-        $collection->getTable()->saveOrFail($collection);
+        $collection->set('collection_updated', date('c'));
+        $this->saveObject($collection);
     }
 
     /**
@@ -153,8 +174,8 @@ class CollectionHandler
             'metadata' => ['type' => $entity->get('type')],
         ];
         $this->chatlas->post('/index', $body);
-        $entity->set('index_updated', new FrozenTime());
-        $entity->getTable()->saveOrFail($entity);
+        $entity->set('index_updated', date('c'));
+        $this->saveObject($entity);
     }
 
     /**
@@ -167,24 +188,30 @@ class CollectionHandler
     public function uploadDocument(ObjectEntity $collection, ObjectEntity $entity): void
     {
         $form = new FormData();
-        /** @var \BEdita\Core\Model\Entity\Stream @stream */
-        $stream = $entity->get('streams.0');
+        if (empty($entity->get('streams'))) {
+            $entity->getTable()->loadInto($entity, ['Streams']);
+        }
+        /** @var \BEdita\Core\Model\Entity\Stream|null $stream */
+        $stream = Hash::get($entity, 'streams.0');
+        if (empty($stream)) {
+            return;
+        }
         $resource = FilesystemRegistry::getMountManager()->readStream($stream->uri);
         $form->addFile('file', $resource);
         $form->addMany([
             'collection_id' => $collection->get('collection_uuid'),
             'document_id' => $entity->get('id'),
-            'metadata' => [
+            'metadata' => json_encode([
                 'type' => $entity->get('type'),
                 'file' => $stream->file_name,
-            ],
+            ]),
         ]);
         $this->chatlas->postMultipart(
             '/index/upload',
             $form
         );
-        $entity->set('index_updated', new FrozenTime());
-        $entity->getTable()->saveOrFail($entity);
+        $entity->set('index_updated', date('c'));
+        $this->saveObject($entity);
     }
 
     /**
@@ -287,7 +314,7 @@ class CollectionHandler
         $this->log($this->logMessage('Remove', $collection, $entity), 'info');
         $path = sprintf('/index/%s/%s', $collection->get('collection_uuid'), $entity->get('id'));
         $this->chatlas->delete($path);
-        $entity->set('index_updated', new FrozenTime());
-        $entity->getTable()->saveOrFail($entity);
+        $entity->set('index_updated', null);
+        $this->saveObject($entity);
     }
 }
