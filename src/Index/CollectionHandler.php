@@ -14,7 +14,6 @@ use BEdita\Core\Filesystem\FilesystemRegistry;
 use BEdita\Core\Model\Entity\ObjectEntity;
 use Cake\Event\EventManager;
 use Cake\Http\Client\FormData;
-use Cake\I18n\FrozenTime;
 use Cake\Log\LogTrait;
 use Cake\Utility\Hash;
 
@@ -66,7 +65,6 @@ class CollectionHandler
     public function __construct()
     {
         $this->chatlas = new ChatlasClient();
-        FrozenTime::setJsonEncodeFormat("yyyy-MM-dd'T'HH:mm:ssxxx");
     }
 
     /**
