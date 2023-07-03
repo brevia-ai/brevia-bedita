@@ -10,8 +10,9 @@ namespace BEdita\Chatlas\Client;
 
 use Cake\Core\Configure;
 use Cake\Http\Client;
+use Cake\Http\Client\FormData;
 use Cake\Http\Client\Response;
-use Cake\Http\Exception\HttpException as ExceptionHttpException;
+use Cake\Http\Exception\HttpException;
 use Cake\Http\Exception\MethodNotAllowedException;
 use Cake\Log\LogTrait;
 
@@ -94,6 +95,22 @@ class ChatlasClient
     }
 
     /**
+     * Proxy for POST multipart/form requests to Chatlas API
+     *
+     * @param string $path The path for API request
+     * @param \Cake\Http\Client\FormData $form The form data
+     * @return array
+     */
+    public function postMultipart(string $path, FormData $form): array
+    {
+        return $this->apiRequest(compact('path') + [
+            'method' => 'post',
+            'body' => (string)$form,
+            'headers' => ['Content-Type' => $form->contentType()],
+        ]);
+    }
+
+    /**
      * Proxy for PATCH requests to Chatlas API
      *
      * @param string $path The path for API request
@@ -160,12 +177,12 @@ class ChatlasClient
             $response = $this->sendRequest($options);
             $statusCode = $response->getStatusCode();
             if ($statusCode >= 400) {
-                throw new ExceptionHttpException('Chatlas API error', $statusCode);
+                throw new HttpException('Chatlas API error', $statusCode);
             }
 
             return (array)$response->getJson();
         } catch (\Throwable $e) {
-            $this->handleError($e);
+            return $this->handleError($e);
         }
     }
 
@@ -204,18 +221,21 @@ class ChatlasClient
      * Handle error.
      *
      * @param \Throwable $error The error thrown.
-     * @return void
+     * @return array
      */
-    protected function handleError(\Throwable $error): void
+    protected function handleError(\Throwable $error): array
     {
         $status = $error->getCode();
         if ($status < 100 || $status > 599) {
             $status = 500;
         }
-        $errorData = [
-            'status' => (string)$status,
-            'title' => $error->getMessage(),
-        ];
         $this->log('[Chatlas] ' . $error->getMessage(), 'error');
+
+        return [
+            'error' => [
+                'status' => (string)$status,
+                'title' => $error->getMessage(),
+            ],
+        ];
     }
 }
