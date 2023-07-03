@@ -98,16 +98,15 @@ class ChatlasClient
      * Proxy for POST multipart/form requests to Chatlas API
      *
      * @param string $path The path for API request
-     * @param array $body The body data
-     * @param array $headers The request headers
+     * @param \Cake\Http\Client\FormData $form The form data
      * @return array
      */
-    public function postMultipart(string $path = '', FormData $form): array
+    public function postMultipart(string $path, FormData $form): array
     {
         return $this->apiRequest(compact('path') + [
             'method' => 'post',
             'body' => (string)$form,
-            'multipart' => true,
+            'headers' => ['Content-Type' => $form->contentType()],
         ]);
     }
 
@@ -150,7 +149,6 @@ class ChatlasClient
      * - query => an array of query strings
      * - body => the body sent
      * - headers => an array of headers
-     * - multipart => multipart form data request
      *
      * @param array $options The request options
      * @return array
@@ -163,7 +161,6 @@ class ChatlasClient
             'query' => null,
             'body' => null,
             'headers' => null,
-            'multipart' => false,
         ];
 
         if (empty($options['body'])) {
@@ -172,7 +169,7 @@ class ChatlasClient
         if (is_array($options['body'])) {
             $options['body'] = json_encode($options['body']);
         }
-        if (!empty($options['body']) && !$options['multipart'] && empty($options['headers']['Content-Type'])) {
+        if (!empty($options['body']) && empty($options['headers']['Content-Type'])) {
             $options['headers']['Content-Type'] = 'application/json';
         }
 
@@ -185,7 +182,7 @@ class ChatlasClient
 
             return (array)$response->getJson();
         } catch (\Throwable $e) {
-            $this->handleError($e);
+            return $this->handleError($e);
         }
     }
 
@@ -224,18 +221,21 @@ class ChatlasClient
      * Handle error.
      *
      * @param \Throwable $error The error thrown.
-     * @return void
+     * @return array
      */
-    protected function handleError(\Throwable $error): void
+    protected function handleError(\Throwable $error): array
     {
         $status = $error->getCode();
         if ($status < 100 || $status > 599) {
             $status = 500;
         }
-        $errorData = [
-            'status' => (string)$status,
-            'title' => $error->getMessage(),
-        ];
         $this->log('[Chatlas] ' . $error->getMessage(), 'error');
+
+        return [
+            'error' => [
+                'status' => (string)$status,
+                'title' => $error->getMessage(),
+            ],
+        ];
     }
 }
