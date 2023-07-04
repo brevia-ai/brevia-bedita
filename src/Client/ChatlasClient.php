@@ -44,7 +44,7 @@ class ChatlasClient
     }
 
     /**
-     * Initializa client from configuration
+     * Initialize client from `Chatlas` configuration key
      *
      * @return void
      */
@@ -170,7 +170,7 @@ class ChatlasClient
             $options['body'] = json_encode($options['body']);
         }
         if (!empty($options['body']) && empty($options['headers']['Content-Type'])) {
-            $options['headers']['Content-Type'] = 'application/json';
+            $options['headers']['Content-Type'] = static::DEFAULT_CONTENT_TYPE;
         }
 
         try {
