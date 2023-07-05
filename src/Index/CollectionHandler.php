@@ -166,8 +166,9 @@ class CollectionHandler
 
             return;
         }
+        $content = sprintf("%s\n%s", (string)$entity->get('title'), strip_tags((string)$entity->get('body')));
         $body = [
-            'content' => strip_tags((string)$entity->get('body')),
+            'content' => $content,
             'collection_id' => $collection->get('collection_uuid'),
             'document_id' => $entity->get('id'),
             'metadata' => ['type' => $entity->get('type')],
