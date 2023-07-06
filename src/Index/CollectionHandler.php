@@ -29,7 +29,7 @@ class CollectionHandler
      *
      * @var \BEdita\Chatlas\Client\ChatlasClient
      */
-    protected $chatlas = null;
+    protected ChatlasClient $chatlas = null;
 
     /**
      * List of properties to exclude when saving Chatlas collection metadata

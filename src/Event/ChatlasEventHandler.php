@@ -46,7 +46,7 @@ class ChatlasEventHandler implements EventListenerInterface
      * @param \Cake\Datasource\EntityInterface $entity The Entity saved.
      * @return void
      */
-    public function afterSave(EventInterface $event, EntityInterface $entity)
+    public function afterSave(EventInterface $event, EntityInterface $entity): void
     {
         $type = (string)$entity->get('type');
         if (empty($type) || !$entity instanceof ObjectEntity) {
@@ -126,7 +126,7 @@ class ChatlasEventHandler implements EventListenerInterface
      * @param \Cake\Datasource\EntityInterface $entity The Entity saved.
      * @return void
      */
-    public function afterDelete(EventInterface $event, EntityInterface $entity)
+    public function afterDelete(EventInterface $event, EntityInterface $entity): void
     {
         $type = (string)$entity->get('type');
         if (!$entity instanceof ObjectEntity || $type !== 'collections') {

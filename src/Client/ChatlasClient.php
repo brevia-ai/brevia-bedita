@@ -15,6 +15,7 @@ use Cake\Http\Client\Response;
 use Cake\Http\Exception\HttpException;
 use Cake\Http\Exception\MethodNotAllowedException;
 use Cake\Log\LogTrait;
+use Throwable;
 
 /**
  * Chatlas API Client.
@@ -28,7 +29,7 @@ class ChatlasClient
      *
      * @var \Cake\Http\Client
      */
-    protected $client = null;
+    protected Client $client = null;
 
     /**
      * Default content type in requests
@@ -181,7 +182,7 @@ class ChatlasClient
             }
 
             return (array)$response->getJson();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return $this->handleError($e);
         }
     }
@@ -223,7 +224,7 @@ class ChatlasClient
      * @param \Throwable $error The error thrown.
      * @return array
      */
-    protected function handleError(\Throwable $error): array
+    protected function handleError(Throwable $error): array
     {
         $status = $error->getCode();
         if ($status < 100 || $status > 599) {
