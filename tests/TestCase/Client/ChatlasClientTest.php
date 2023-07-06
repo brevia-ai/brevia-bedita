@@ -6,6 +6,7 @@ namespace BEdita\Chatlas\Client\Test\TestCase;
 use BEdita\Chatlas\Client\ChatlasClient;
 use Cake\Core\Configure;
 use Cake\Http\Client;
+use Cake\Http\Client\FormData;
 use Cake\TestSuite\TestCase;
 use Exception;
 use Throwable;
@@ -41,6 +42,8 @@ class ChatlasClientTest extends TestCase
              */
             public Client $client;
 
+            public array $mockResponse = [];
+
             /**
              * Wrapper for handleError() method.
              *
@@ -50,6 +53,14 @@ class ChatlasClientTest extends TestCase
             public function myHandleError(Throwable $error): array
             {
                 return $this->handleError($error);
+            }
+
+            /**
+             * @inheritDoc
+             */
+            public function apiRequest(array $options = []): array
+            {
+                return $this->mockResponse + $options;
             }
         };
         $this->httpClient = $this->createMock(Client::class);
@@ -76,12 +87,19 @@ class ChatlasClientTest extends TestCase
      *
      * @return void
      * @covers ::get()
-     * @covers ::apiRequest()
-     * @covers ::sendRequest()
      */
     public function testGet(): void
     {
-        static::markTestIncomplete('This test has not been implemented yet.');
+        $mockResponse = ['test' => 'get response'];
+        $this->client->mockResponse = $mockResponse;
+        $expected = $mockResponse + [
+            'path' => '/test',
+            'query' => [],
+            'headers' => [],
+            'method' => 'get',
+        ];
+        $actual = $this->client->get('/test');
+        static::assertEquals($expected, $actual);
     }
 
     /**
@@ -89,12 +107,19 @@ class ChatlasClientTest extends TestCase
      *
      * @return void
      * @covers ::post()
-     * @covers ::apiRequest()
-     * @covers ::sendRequest()
      */
     public function testPost(): void
     {
-        static::markTestIncomplete('This test has not been implemented yet.');
+        $mockResponse = ['test' => 'post response'];
+        $this->client->mockResponse = $mockResponse;
+        $expected = $mockResponse + [
+            'path' => '/test',
+            'headers' => [],
+            'method' => 'post',
+            'body' => [],
+        ];
+        $actual = $this->client->post('/test');
+        static::assertEquals($expected, $actual);
     }
 
     /**
@@ -102,12 +127,19 @@ class ChatlasClientTest extends TestCase
      *
      * @return void
      * @covers ::postMultipart()
-     * @covers ::apiRequest()
-     * @covers ::sendRequest()
      */
     public function testPostMultipart(): void
     {
-        static::markTestIncomplete('This test has not been implemented yet.');
+        $mockResponse = ['test' => 'post multipart response'];
+        $this->client->mockResponse = $mockResponse;
+        $expected = $mockResponse + [
+            'path' => '/test',
+            'headers' => ['Content-Type' => 'application/x-www-form-urlencoded'],
+            'method' => 'post',
+            'body' => '',
+        ];
+        $actual = $this->client->postMultipart('/test', new FormData());
+        static::assertEquals($expected, $actual);
     }
 
     /**
@@ -115,12 +147,19 @@ class ChatlasClientTest extends TestCase
      *
      * @return void
      * @covers ::patch()
-     * @covers ::apiRequest()
-     * @covers ::sendRequest()
      */
     public function testPatch(): void
     {
-        static::markTestIncomplete('This test has not been implemented yet.');
+        $mockResponse = ['test' => 'patch response'];
+        $this->client->mockResponse = $mockResponse;
+        $expected = $mockResponse + [
+            'path' => '/test',
+            'headers' => [],
+            'method' => 'patch',
+            'body' => [],
+        ];
+        $actual = $this->client->patch('/test');
+        static::assertEquals($expected, $actual);
     }
 
     /**
@@ -128,10 +167,39 @@ class ChatlasClientTest extends TestCase
      *
      * @return void
      * @covers ::delete()
-     * @covers ::apiRequest()
-     * @covers ::sendRequest()
      */
     public function testDelete(): void
+    {
+        $mockResponse = ['test' => 'delete response'];
+        $this->client->mockResponse = $mockResponse;
+        $expected = $mockResponse + [
+            'path' => '/test',
+            'headers' => [],
+            'method' => 'delete',
+            'body' => [],
+        ];
+        $actual = $this->client->delete('/test');
+        static::assertEquals($expected, $actual);
+    }
+
+    /**
+     * Test `apiRequest()` method.
+     *
+     * @return void
+     * @covers ::apiRequest()
+     */
+    public function testApiRequest(): void
+    {
+        static::markTestIncomplete('This test has not been implemented yet.');
+    }
+
+    /**
+     * Test `sendRequest()` method.
+     *
+     * @return void
+     * @covers ::sendRequest()
+     */
+    public function testSendRequest(): void
     {
         static::markTestIncomplete('This test has not been implemented yet.');
     }
