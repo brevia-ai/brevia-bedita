@@ -29,7 +29,7 @@ class ChatlasClient
      *
      * @var \Cake\Http\Client
      */
-    protected Client $client = null;
+    protected Client $client;
 
     /**
      * Default content type in requests
@@ -58,7 +58,7 @@ class ChatlasClient
         $options['timeout'] = Configure::read('Chatlas.timeout', 30);
         if (Configure::check('Chatlas.token')) {
             $options['headers'][] = [
-                'Authorization' => sprintf('Bearer %s', Configure::read('Chatlas.token')),
+                'Authorization' => sprintf('Bearer %s', (string)Configure::read('Chatlas.token')),
             ];
         }
 
@@ -70,7 +70,7 @@ class ChatlasClient
      *
      * @param string $path The path for API request
      * @param array $query The query params
-     * @param array $headers The request headers
+     * @param array<string, string> $headers The request headers
      * @return array
      */
     public function get(string $path = '', array $query = [], array $headers = []): array
@@ -85,7 +85,7 @@ class ChatlasClient
      *
      * @param string $path The path for API request
      * @param array $body The body data
-     * @param array $headers The request headers
+     * @param array<string, string> $headers The request headers
      * @return array
      */
     public function post(string $path = '', array $body = [], array $headers = []): array
@@ -116,7 +116,7 @@ class ChatlasClient
      *
      * @param string $path The path for API request
      * @param array $body The body data
-     * @param array $headers The request headers
+     * @param array<string, string> $headers The request headers
      * @return array
      */
     public function patch(string $path = '', array $body = [], array $headers = []): array
@@ -131,7 +131,7 @@ class ChatlasClient
      *
      * @param string $path The path for API request
      * @param array $body The body data
-     * @param array $headers The request headers
+     * @param array<string, string> $headers The request headers
      * @return array
      */
     public function delete(string $path = '', array $body = [], array $headers = []): array
