@@ -23,8 +23,8 @@ jobs:
     with:
       php_versions: '["8.1", "8.2"]'
 
-  # unit-5:
-  #   uses: bedita/github-workflows/.github/workflows/php-unit.yml@v1
-  #   with:
-  #     php_versions: '["8.1", "8.2"]'
-  #     bedita_version: '5'
+  unit-5:
+    uses: bedita/github-workflows/.github/workflows/php-unit.yml@v1
+    with:
+      php_versions: '["8.1", "8.2"]'
+      bedita_version: '5'
