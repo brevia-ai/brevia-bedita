@@ -7,6 +7,8 @@ use BEdita\Chatlas\Client\ChatlasClient;
 use Cake\Core\Configure;
 use Cake\Http\Client;
 use Cake\TestSuite\TestCase;
+use Exception;
+use Throwable;
 
 /**
  * @coversDefaultClass \BEdita\Chatlas\Client\ChatlasClient
@@ -38,6 +40,17 @@ class ChatlasClientTest extends TestCase
              * @var \Cake\Http\Client
              */
             public Client $client;
+
+            /**
+             * Wrapper for handleError() method.
+             *
+             * @param \Throwable $error The error thrown.
+             * @return array
+             */
+            public function myHandleError(Throwable $error): array
+            {
+                return $this->handleError($error);
+            }
         };
         $this->httpClient = $this->createMock(Client::class);
         $this->client = new $client($this->httpClient);
@@ -63,6 +76,8 @@ class ChatlasClientTest extends TestCase
      *
      * @return void
      * @covers ::get()
+     * @covers ::apiRequest()
+     * @covers ::sendRequest()
      */
     public function testGet(): void
     {
@@ -74,6 +89,8 @@ class ChatlasClientTest extends TestCase
      *
      * @return void
      * @covers ::post()
+     * @covers ::apiRequest()
+     * @covers ::sendRequest()
      */
     public function testPost(): void
     {
@@ -85,6 +102,8 @@ class ChatlasClientTest extends TestCase
      *
      * @return void
      * @covers ::postMultipart()
+     * @covers ::apiRequest()
+     * @covers ::sendRequest()
      */
     public function testPostMultipart(): void
     {
@@ -96,6 +115,8 @@ class ChatlasClientTest extends TestCase
      *
      * @return void
      * @covers ::patch()
+     * @covers ::apiRequest()
+     * @covers ::sendRequest()
      */
     public function testPatch(): void
     {
@@ -107,30 +128,10 @@ class ChatlasClientTest extends TestCase
      *
      * @return void
      * @covers ::delete()
-     */
-    public function testDelete(): void
-    {
-        static::markTestIncomplete('This test has not been implemented yet.');
-    }
-
-    /**
-     * Test `apiRequest()` method.
-     *
-     * @return void
      * @covers ::apiRequest()
-     */
-    public function testApiRequest(): void
-    {
-        static::markTestIncomplete('This test has not been implemented yet.');
-    }
-
-    /**
-     * Test `sendRequest()` method.
-     *
-     * @return void
      * @covers ::sendRequest()
      */
-    public function testSendRequest(): void
+    public function testDelete(): void
     {
         static::markTestIncomplete('This test has not been implemented yet.');
     }
@@ -143,6 +144,8 @@ class ChatlasClientTest extends TestCase
      */
     public function testHandleError(): void
     {
-        static::markTestIncomplete('This test has not been implemented yet.');
+        $expected = ['error' => ['status' => 500, 'title' => 'test']];
+        $actual = $this->client->myHandleError(new Exception('test'));
+        static::assertEquals($expected, $actual);
     }
 }
