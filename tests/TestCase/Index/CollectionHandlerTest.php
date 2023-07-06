@@ -27,7 +27,7 @@ class CollectionHandlerTest extends TestCase
         parent::setUp();
 
         $this->client = $this->createMock(ChatlasClient::class);
-        $this->handler = new CollectionHandler($this->client);
+        $this->handler = new CollectionHandler();
     }
 
     /**

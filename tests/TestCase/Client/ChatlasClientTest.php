@@ -7,20 +7,16 @@ use BEdita\Chatlas\Client\ChatlasClient;
 use Cake\Core\Configure;
 use Cake\Http\Client;
 use Cake\TestSuite\TestCase;
-use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * @coversDefaultClass \BEdita\Chatlas\Client\ChatlasClient
  */
 class ChatlasClientTest extends TestCase
 {
-    /**
-     * @var ChatlasClient
-     */
     protected $client;
 
     /**
-     * @var MockObject|Client
+     * @var \PHPUnit\Framework\MockObject\MockObject|\Cake\Http\Client
      */
     protected $httpClient;
 
