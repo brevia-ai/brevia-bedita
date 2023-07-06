@@ -177,11 +177,13 @@ class ChatlasClient
         try {
             $response = $this->sendRequest($options);
             $statusCode = $response->getStatusCode();
+            $body = (array)$response->getJson();
             if ($statusCode >= 400) {
-                throw new HttpException('Chatlas API error', $statusCode);
+                $msg = sprintf('Chatlas API error [%d] - %s', $statusCode, json_encode($body));
+                throw new HttpException($msg);
             }
 
-            return (array)$response->getJson();
+            return $body;
         } catch (Throwable $e) {
             return $this->handleError($e);
         }
