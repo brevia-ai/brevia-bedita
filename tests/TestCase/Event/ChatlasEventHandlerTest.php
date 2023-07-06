@@ -34,7 +34,12 @@ class ChatlasEventHandlerTest extends TestCase
      */
     public function testImplementedEvents(): void
     {
-        static::markTestIncomplete('This test has not been implemented yet.');
+        $expected = [
+            'Model.afterDelete' => 'afterDelete',
+            'Model.afterSave' => 'afterSave',
+            'Associated.afterSave' => 'afterSaveAssociated',
+        ];
+        static::assertSame($expected, $this->handler->implementedEvents());
     }
 
     /**

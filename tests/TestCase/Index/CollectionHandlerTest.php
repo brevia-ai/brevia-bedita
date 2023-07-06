@@ -5,6 +5,8 @@ namespace BEdita\Chatlas\Test\TestCase\Index;
 
 use BEdita\Chatlas\Client\ChatlasClient;
 use BEdita\Chatlas\Index\CollectionHandler;
+use Cake\Core\Configure;
+use Cake\Http\Client;
 use Cake\TestSuite\TestCase;
 
 /**
@@ -13,20 +15,30 @@ use Cake\TestSuite\TestCase;
 class CollectionHandlerTest extends TestCase
 {
     /**
-     * @var CollectionHandler
+     * @var \BEdita\Chatlas\Index\CollectionHandler
      */
     protected $handler;
 
-    /**
-     * @var ChatlasClient
-     */
     protected $client;
 
     public function setUp(): void
     {
         parent::setUp();
 
-        $this->client = $this->createMock(ChatlasClient::class);
+        Configure::write('Chatlas', [
+            'apiUrl' => 'https://api.chatlasapp.com',
+            'token' => 'test-token',
+        ]);
+        $client = new class extends ChatlasClient {
+            /**
+             * API internal HTTP client
+             *
+             * @var \Cake\Http\Client
+             */
+            public Client $client;
+        };
+
+        $this->client = new $client($this->createMock(Client::class));
         $this->handler = new CollectionHandler();
     }
 
@@ -38,7 +50,10 @@ class CollectionHandlerTest extends TestCase
      */
     public function testConstruct(): void
     {
-        static::markTestIncomplete('This test has not been implemented yet.');
+        $cakeClient = $this->client->client;
+        static::assertInstanceof(Client::class, $cakeClient);
+        static::assertInstanceof(ChatlasClient::class, $this->client);
+        static::assertSame('api.chatlasapp.com', $cakeClient->getConfig('host'));
     }
 
     /**
