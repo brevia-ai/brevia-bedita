@@ -160,8 +160,15 @@ class CollectionHandler
      * @param \BEdita\Core\Model\Entity\ObjectEntity $entity Document entity
      * @return void
      */
-    public function addDocument(ObjectEntity $collection, ObjectEntity $entity): void
+    protected function addDocument(ObjectEntity $collection, ObjectEntity $entity): void
     {
+        if ($entity->get('status') !== 'on' || $entity->get('deleted')) {
+            $msg = sprintf('Skipping doc "%s" - ', $entity->get('title')) .
+                sprintf('status "%s" - deleted %b', $entity->get('status'), (bool)$entity->get('deleted'));
+            $this->log($msg, 'info');
+
+            return;
+        }
         if ($entity->get('type') === 'files') {
             $this->uploadDocument($collection, $entity);
 
