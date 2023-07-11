@@ -16,6 +16,7 @@ use Cake\Event\EventManager;
 use Cake\Http\Client\FormData;
 use Cake\Log\LogTrait;
 use Cake\Utility\Hash;
+use Laminas\Diactoros\UploadedFile;
 
 /**
  * Handle Chatlas collection via API.
@@ -197,7 +198,14 @@ class CollectionHandler
             return;
         }
         $resource = FilesystemRegistry::getMountManager()->readStream($stream->uri);
-        $form->addFile('file', $resource);
+        $file = new UploadedFile(
+            $resource,
+            $stream->file_size,
+            UPLOAD_ERR_OK,
+            $stream->file_name,
+            $stream->mime_type,
+        );
+        $form->addFile('file', $file);
         $form->addMany([
             'collection_id' => $collection->get('collection_uuid'),
             'document_id' => $entity->get('id'),
