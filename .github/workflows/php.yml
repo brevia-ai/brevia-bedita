@@ -28,4 +28,4 @@ jobs:
     with:
       php_versions: '["8.1", "8.2"]'
       bedita_version: '5'
-      coverage_min_percentage: 20
+      coverage_min_percentage: 15

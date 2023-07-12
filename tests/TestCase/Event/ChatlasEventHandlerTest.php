@@ -17,7 +17,7 @@ class ChatlasEventHandlerTest extends TestCase
     protected $handler;
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function setUp(): void
     {

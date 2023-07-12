@@ -174,19 +174,20 @@ class ChatlasClient
             $options['headers']['Content-Type'] = static::DEFAULT_CONTENT_TYPE;
         }
 
+        $body = [];
+        $statusCode = 0;
         try {
             $response = $this->sendRequest($options);
             $statusCode = $response->getStatusCode();
             $body = (array)$response->getJson();
-            if ($statusCode >= 400) {
-                $msg = sprintf('Chatlas API error [%d] - %s', $statusCode, json_encode($body));
-                throw new HttpException($msg);
-            }
-
-            return $body;
         } catch (Throwable $e) {
-            return $this->handleError($e);
+            $this->handleError($e->getCode(), $e->getMessage());
         }
+        if ($statusCode >= 400) {
+            $this->handleError($statusCode, (string)json_encode($body));
+        }
+
+        return $body;
     }
 
     /**
@@ -221,24 +222,20 @@ class ChatlasClient
     }
 
     /**
-     * Handle error.
+     * Handle Chatlas API error: log and throw exception
      *
-     * @param \Throwable $error The error thrown.
-     * @return array
+     * @param int $code Error code
+     * @param string $message Error message
+     * @throws \Cake\Http\Exception\HttpException
+     * @return void
      */
-    protected function handleError(Throwable $error): array
+    protected function handleError(int $code, string $message): void
     {
-        $status = $error->getCode();
-        if ($status < 100 || $status > 599) {
-            $status = 500;
+        if ($code < 100 || $code > 599) {
+            $code = 500;
         }
-        $this->log('[Chatlas] ' . $error->getMessage(), 'error');
-
-        return [
-            'error' => [
-                'status' => (string)$status,
-                'title' => $error->getMessage(),
-            ],
-        ];
+        $msg = sprintf('Chatlas API error: %s', $message);
+        $this->log(sprintf('[%d] %s', $code, $msg), 'error');
+        throw new HttpException($msg, $code);
     }
 }

@@ -7,9 +7,8 @@ use BEdita\Chatlas\Client\ChatlasClient;
 use Cake\Core\Configure;
 use Cake\Http\Client;
 use Cake\Http\Client\FormData;
+use Cake\Http\Exception\HttpException;
 use Cake\TestSuite\TestCase;
-use Exception;
-use Throwable;
 
 /**
  * @coversDefaultClass \BEdita\Chatlas\Client\ChatlasClient
@@ -47,12 +46,13 @@ class ChatlasClientTest extends TestCase
             /**
              * Wrapper for handleError() method.
              *
-             * @param \Throwable $error The error thrown.
-             * @return array
+             * @param int $code Error code
+             * @param string $message Error message
+             * @return void
              */
-            public function myHandleError(Throwable $error): array
+            public function myHandleError(int $code, string $message): void
             {
-                return $this->handleError($error);
+                $this->handleError($code, $message);
             }
 
             /**
@@ -212,8 +212,9 @@ class ChatlasClientTest extends TestCase
      */
     public function testHandleError(): void
     {
-        $expected = ['error' => ['status' => 500, 'title' => 'test']];
-        $actual = $this->client->myHandleError(new Exception('test'));
-        static::assertEquals($expected, $actual);
+        $this->expectException(HttpException::class);
+        $this->expectExceptionMessage('test');
+        $this->expectExceptionCode(500);
+        $this->client->myHandleError(500, 'test');
     }
 }
