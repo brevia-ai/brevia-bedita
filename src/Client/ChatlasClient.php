@@ -51,11 +51,13 @@ class ChatlasClient
      */
     public function initialize(): void
     {
-        $options = parse_url((string)Configure::read('Chatlas.apiUrl')) + [
+        $options = parse_url((string)Configure::read('Chatlas.apiUrl')) + array_filter([
             'headers' => [
                 'Accept' => 'application/json',
-            ]];
-        $options['timeout'] = Configure::read('Chatlas.timeout', 30);
+            ],
+            'timeout' => Configure::read('Chatlas.timeout'),
+            'client' => (array)Configure::read('Chatlas.client'),
+        ]);
         if (Configure::check('Chatlas.token')) {
             $options['headers'][] = [
                 'Authorization' => sprintf('Bearer %s', (string)Configure::read('Chatlas.token')),
