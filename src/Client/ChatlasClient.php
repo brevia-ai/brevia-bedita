@@ -56,10 +56,10 @@ class ChatlasClient
                 'Accept' => 'application/json',
             ],
             'timeout' => Configure::read('Chatlas.timeout'),
-            'client' => (array)Configure::read('Chatlas.client'),
+            'adapter' => Configure::read('Chatlas.adapter'),
         ]);
         if (Configure::check('Chatlas.token')) {
-            $options['headers'][] = [
+            $options['headers'] += [
                 'Authorization' => sprintf('Bearer %s', (string)Configure::read('Chatlas.token')),
             ];
         }
@@ -208,7 +208,7 @@ class ChatlasClient
         if ($method === 'get') {
             return $this->client->get(
                 (string)$options['path'],
-                (string)$options['query'],
+                (array)$options['query'],
                 $headers
             );
         }
