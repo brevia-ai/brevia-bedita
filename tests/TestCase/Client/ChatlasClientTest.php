@@ -128,13 +128,12 @@ class ChatlasClientTest extends TestCase
     public function testHandleError(): void
     {
         $this->expectException(HttpException::class);
-        $this->expectExceptionMessage('Chatlas API error: []');
+        $this->expectExceptionMessage('Chatlas API error: ');
         $this->expectExceptionCode(500);
         $this->mockClientResponse('', 500);
         $chatlasClient = new ChatlasClient();
         $chatlasClient->delete('/test');
     }
-
 
     /**
      * Test `handleError()` method with a bad url exception
@@ -152,5 +151,4 @@ class ChatlasClientTest extends TestCase
         $chatlasClient = new ChatlasClient();
         $chatlasClient->get('/test');
     }
-
 }

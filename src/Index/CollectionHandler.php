@@ -9,10 +9,8 @@ declare(strict_types=1);
 namespace BEdita\Chatlas\Index;
 
 use BEdita\Chatlas\Client\ChatlasClient;
-use BEdita\Chatlas\Event\ChatlasEventHandler;
 use BEdita\Core\Filesystem\FilesystemRegistry;
 use BEdita\Core\Model\Entity\ObjectEntity;
-use Cake\Event\EventManager;
 use Cake\Http\Client\FormData;
 use Cake\Log\LogTrait;
 use Cake\Utility\Hash;

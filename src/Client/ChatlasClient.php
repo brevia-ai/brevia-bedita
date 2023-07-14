@@ -13,7 +13,6 @@ use Cake\Http\Client;
 use Cake\Http\Client\FormData;
 use Cake\Http\Client\Response;
 use Cake\Http\Exception\HttpException;
-use Cake\Http\Exception\MethodNotAllowedException;
 use Cake\Log\LogTrait;
 use Throwable;
 
@@ -73,7 +72,7 @@ class ChatlasClient
      * @param string $path The path for API request
      * @param array $query The query params
      * @param array<string, string> $headers The request headers
-     * @return \Cake\Http\Response
+     * @return \Cake\Http\Client\Response
      */
     public function get(string $path = '', array $query = [], array $headers = []): Response
     {
@@ -88,7 +87,7 @@ class ChatlasClient
      * @param string $path The path for API request
      * @param array $body The body data
      * @param array<string, string> $headers The request headers
-     * @return \Cake\Http\Response
+     * @return \Cake\Http\Client\Response
      */
     public function post(string $path = '', array $body = [], array $headers = []): Response
     {
@@ -102,7 +101,7 @@ class ChatlasClient
      *
      * @param string $path The path for API request
      * @param \Cake\Http\Client\FormData $form The form data
-     * @return \Cake\Http\Response
+     * @return \Cake\Http\Client\Response
      */
     public function postMultipart(string $path, FormData $form): Response
     {
@@ -119,7 +118,7 @@ class ChatlasClient
      * @param string $path The path for API request
      * @param array $body The body data
      * @param array<string, string> $headers The request headers
-     * @return \Cake\Http\Response
+     * @return \Cake\Http\Client\Response
      */
     public function patch(string $path = '', array $body = [], array $headers = []): Response
     {
@@ -134,7 +133,7 @@ class ChatlasClient
      * @param string $path The path for API request
      * @param array $body The body data
      * @param array<string, string> $headers The request headers
-     * @return \Cake\Http\Response
+     * @return \Cake\Http\Client\Response
      */
     public function delete(string $path = '', array $body = [], array $headers = []): Response
     {
@@ -154,7 +153,7 @@ class ChatlasClient
      * - headers => an array of headers
      *
      * @param array $options The request options
-     * @return \Cake\Http\Response
+     * @return \Cake\Http\Client\Response
      */
     protected function apiRequest(array $options): Response
     {
@@ -176,7 +175,7 @@ class ChatlasClient
             $options['headers']['Content-Type'] = static::DEFAULT_CONTENT_TYPE;
         }
 
-        $body = [];
+        $response = new Response();
         $statusCode = 0;
         try {
             $response = $this->sendRequest($options);
@@ -185,7 +184,7 @@ class ChatlasClient
             $this->handleError($e->getCode(), $e->getMessage());
         }
         if ($statusCode >= 400) {
-            $this->handleError($statusCode, (string)json_encode($body));
+            $this->handleError($statusCode, $response->getStringBody());
         }
 
         return $response;

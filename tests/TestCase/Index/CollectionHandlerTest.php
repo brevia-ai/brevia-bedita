@@ -27,7 +27,7 @@ class CollectionHandlerTest extends TestCase
      */
     public function testCreateCollection(): void
     {
-        $collection = $this->mockEntity('collections');
+        $collection = $this->mockEntity();
         $value = '123456789';
         $this->mockClientResponse(json_encode(['uuid' => $value]));
 
@@ -39,10 +39,8 @@ class CollectionHandlerTest extends TestCase
 
     /**
      * Create Entity mock
-     *
-     * @return \PHPUnit\Framework\MockObject\MockObject
      */
-    protected function mockEntity(): MockObject
+    protected function mockEntity()
     {
         $mockTable = $this->getMockBuilder(Table::class)
             ->onlyMethods(['saveOrFail', 'loadInto'])
