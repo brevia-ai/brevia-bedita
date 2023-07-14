@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace BEdita\Chatlas\Test\TestCase\Client;
 
 use BEdita\Chatlas\Client\ChatlasClient;
-use BEdita\Chatlas\Test\ClientMockTrait;
+use BEdita\Chatlas\Test\TestMockTrait;
 use Cake\Core\Configure;
 use Cake\Http\Client\FormData;
 use Cake\Http\Exception\HttpException;
@@ -15,7 +15,7 @@ use Cake\TestSuite\TestCase;
  */
 class ChatlasClientTest extends TestCase
 {
-    use ClientMockTrait;
+    use TestMockTrait;
 
     /**
      * Test `__construct()` method.

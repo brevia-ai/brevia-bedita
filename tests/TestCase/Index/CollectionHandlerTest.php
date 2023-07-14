@@ -4,18 +4,18 @@ declare(strict_types=1);
 namespace BEdita\Chatlas\Test\TestCase\Index;
 
 use BEdita\Chatlas\Index\CollectionHandler;
-use BEdita\Chatlas\Test\ClientMockTrait;
+use BEdita\Chatlas\Test\TestMockTrait;
+use BEdita\Core\Filesystem\FilesystemRegistry;
 use BEdita\Core\Model\Entity\ObjectEntity;
-use Cake\ORM\Table;
+use BEdita\Core\Model\Entity\Stream;
 use Cake\TestSuite\TestCase;
-use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * @coversDefaultClass \BEdita\Chatlas\Index\CollectionHandler
  */
 class CollectionHandlerTest extends TestCase
 {
-    use ClientMockTrait;
+    use TestMockTrait;
 
     /**
      * Test `createCollection()` method.
@@ -38,30 +38,6 @@ class CollectionHandlerTest extends TestCase
     }
 
     /**
-     * Create Entity mock
-     */
-    protected function mockEntity()
-    {
-        $mockTable = $this->getMockBuilder(Table::class)
-            ->onlyMethods(['saveOrFail', 'loadInto'])
-            ->getMock();
-        $mockTable->method('saveOrFail')
-            ->willReturn(new ObjectEntity());
-        $mockTable->method('loadInto')
-            ->willReturn([]);
-
-        $mockEntity = $this->getMockBuilder(ObjectEntity::class)
-            ->onlyMethods(['toArray', 'getTable'])
-            ->getMock();
-        $mockEntity->method('toArray')
-            ->willReturn([]);
-        $mockEntity->method('getTable')
-            ->willReturn($mockTable);
-
-        return $mockEntity;
-    }
-
-    /**
      * Test `updateCollection()` method.
      *
      * @return void
@@ -74,17 +50,6 @@ class CollectionHandlerTest extends TestCase
         $handler = new CollectionHandler();
         $handler->updateCollection($collection);
         static::assertNotEmpty($collection->get('collection_updated'));
-    }
-
-    /**
-     * Test `chatlasCollection()` method.
-     *
-     * @return void
-     * @covers ::chatlasCollection()
-     */
-    public function testChatlasCollection(): void
-    {
-        static::markTestIncomplete('This test has not been implemented yet.');
     }
 
     /**
@@ -104,14 +69,24 @@ class CollectionHandlerTest extends TestCase
     }
 
     /**
-     * Test `addDocument()` method.
+     * Test `uploadDocument()` method.
      *
      * @return void
+     * @covers ::uploadDocument()
+     * @covers ::updateDocument()
      * @covers ::addDocument()
      */
-    public function testAddDocument(): void
+    public function testUploadEmptyStream(): void
     {
-        static::markTestIncomplete('This test has not been implemented yet.');
+        $entity = $this->mockEntity('files', [
+            'index_updated' => null,
+            'status' => 'on',
+        ]);
+        $entity->setNew(false);
+        $handler = new CollectionHandler();
+        $collection = new ObjectEntity();
+        $handler->updateDocument($collection, $entity);
+        static::assertNull($entity->get('index_updated'));
     }
 
     /**
@@ -120,9 +95,31 @@ class CollectionHandlerTest extends TestCase
      * @return void
      * @covers ::uploadDocument()
      */
-    public function testUploadDocument(): void
+    public function testUploadStream(): void
     {
-        static::markTestIncomplete('This test has not been implemented yet.');
+        FilesystemRegistry::dropAll();
+        FilesystemRegistry::setConfig([
+            'default' => [
+                'className' => 'BEdita/Core.Local',
+                'path' => './tests' . DS . 'uploads',
+            ],
+        ]);
+
+        $stream = new Stream();
+        $stream->set('uri', 'default://test.txt', ['guard' => false]);
+        $stream->set('file_size', 1, ['guard' => false]);
+        $entity = $this->mockEntity('files', [
+            'index_updated' => null,
+            'status' => 'on',
+            'streams' => [$stream],
+        ]);
+        $entity->setNew(false);
+        $this->mockClientResponse();
+
+        $handler = new CollectionHandler();
+        $collection = new ObjectEntity();
+        $handler->updateDocument($collection, $entity);
+        static::assertNotEmpty($entity->get('index_updated'));
     }
 
     /**
@@ -130,32 +127,120 @@ class CollectionHandlerTest extends TestCase
      *
      * @return void
      * @covers ::updateDocument()
+     * @covers ::addDocument()
      */
-    public function testUpdateDocument(): void
+    public function testUpdateNewDocument(): void
     {
-        static::markTestIncomplete('This test has not been implemented yet.');
+        $entity = $this->mockEntity('documents', [
+            'index_updated' => null,
+            'status' => 'on',
+        ]);
+        $entity->setNew(false);
+        $this->mockClientResponse();
+
+        $handler = new CollectionHandler();
+        $handler->updateDocument(new ObjectEntity(), $entity);
+        static::assertNotEmpty($entity->get('index_updated'));
     }
 
     /**
-     * Test `documentToRemove()` method.
+     * Test `updateDocument()` method.
      *
      * @return void
-     * @covers ::documentToRemove()
+     * @covers ::updateDocument()
+     * @covers ::addDocument()
+     */
+    public function testDocumentNotUpdated(): void
+    {
+        $entity = $this->mockEntity('documents', [
+            'index_updated' => null,
+        ]);
+        $handler = new CollectionHandler();
+        $handler->updateDocument(new ObjectEntity(), $entity);
+        static::assertNull($entity->get('index_updated'));
+    }
+
+    /**
+     * Test `updateDocument()` method with document changed.
+     *
+     * @return void
+     * @covers ::updateDocument()
+     */
+    public function testDocumentChanged(): void
+    {
+        $entity = $this->mockEntity('documents', [
+            'title' => 'new title',
+            'status' => 'on',
+            'index_updated' => null,
+        ]);
+        $entity->setNew(false);
+        $entity->setDirty('status', false);
+        $this->mockClientResponse();
+
+        $handler = new CollectionHandler();
+        $handler->updateDocument(new ObjectEntity(), $entity);
+        static::assertNotNull($entity->get('index_updated'));
+    }
+
+    /**
+     * Test `updateDocument()` with documents to remove.
+     *
+     * @return void
+     * @covers ::updateDocument()
      */
     public function testDocumentToRemove(): void
     {
-        static::markTestIncomplete('This test has not been implemented yet.');
+        $entity = $this->mockEntity('documents', [
+            'index_updated' => date('c'),
+            'status' => 'off',
+        ]);
+        $entity->setNew(false);
+        $this->mockClientResponse();
+
+        $handler = new CollectionHandler();
+        $handler->updateDocument(new ObjectEntity(), $entity);
+        static::assertNull($entity->get('index_updated'));
     }
 
     /**
-     * Test `documentToAdd()` method.
+     * Test `updateDocument()` with documents to restore.
      *
      * @return void
-     * @covers ::documentToAdd()
+     * @covers ::updateDocument()
      */
-    public function testDocumentToAdd(): void
+    public function testDocumentRestored(): void
     {
-        static::markTestIncomplete('This test has not been implemented yet.');
+        $entity = $this->mockEntity('documents', [
+            'index_updated' => null,
+            'status' => 'on',
+        ]);
+        $entity->setNew(false);
+        $entity->setDirty('status', false);
+        $entity->set('deleted', false, ['guard' => false]);
+        $this->mockClientResponse();
+
+        $handler = new CollectionHandler();
+        $handler->updateDocument(new ObjectEntity(), $entity);
+        static::assertNotNull($entity->get('index_updated'));
+    }
+
+    /**
+     * Test `updateDocument()` with changes on `files` entity to ignore.
+     *
+     * @return void
+     * @covers ::updateDocument()
+     */
+    public function testFilesIgnore(): void
+    {
+        $entity = $this->mockEntity('files', [
+            'index_updated' => null,
+            'title' => 'changed title',
+        ]);
+        $entity->setNew(false);
+
+        $handler = new CollectionHandler();
+        $handler->updateDocument(new ObjectEntity(), $entity);
+        static::assertNull($entity->get('index_updated'));
     }
 
     /**
