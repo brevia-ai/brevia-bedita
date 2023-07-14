@@ -65,12 +65,10 @@ class ChatlasEventHandler implements EventListenerInterface
             $handler->updateCollection($entity);
         }
         // Look if there is a `DocumentOf` relation
-        $table = $this->fetchTable($type);
-        $assoc = $table->associations()->get('DocumentOf');
-        if (empty($assoc)) {
+        if (!$entity->getTable()->hasAssociation('DocumentOf')) {
             return;
         }
-        $table->loadInto($entity, ['DocumentOf']);
+        $entity->getTable()->loadInto($entity, ['DocumentOf']);
         $collections = $entity->get('document_of');
         if (empty($collections)) {
             return;

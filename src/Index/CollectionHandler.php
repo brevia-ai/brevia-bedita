@@ -174,7 +174,7 @@ class CollectionHandler
      * @param \BEdita\Core\Model\Entity\ObjectEntity $entity Document entity
      * @return void
      */
-    public function uploadDocument(ObjectEntity $collection, ObjectEntity $entity): void
+    protected function uploadDocument(ObjectEntity $collection, ObjectEntity $entity): void
     {
         $form = new FormData();
         if (empty($entity->get('streams'))) {
@@ -220,13 +220,21 @@ class CollectionHandler
      */
     public function updateDocument(ObjectEntity $collection, ObjectEntity $entity, bool $forceAdd = false): void
     {
-        if ($entity->isNew() || $this->documentToAdd($entity) || $forceAdd) {
+        if (
+            $entity->isNew() ||
+            ($entity->isDirty('deleted') && !$entity->get('deleted')) ||
+            ($entity->isDirty('status') && $entity->get('status') === 'on') ||
+            $forceAdd
+        ) {
             $this->log($this->logMessage('Add', $collection, $entity), 'info');
             $this->addDocument($collection, $entity);
 
             return;
         }
-        if ($this->documentToRemove($entity)) {
+        if (
+            ($entity->isDirty('deleted') && $entity->get('deleted')) ||
+            ($entity->isDirty('status') && in_array($entity->get('status'), ['draft', 'off']))
+        ) {
             $this->removeDocument($collection, $entity);
 
             return;
@@ -244,44 +252,6 @@ class CollectionHandler
                 return;
             }
         }
-    }
-
-    /**
-     * See if a document has to be removed from index
-     *
-     * @param \BEdita\Core\Model\Entity\ObjectEntity $entity Document entity
-     * @return bool
-     */
-    protected function documentToRemove(ObjectEntity $entity): bool
-    {
-        if ($entity->isDirty('deleted') && $entity->get('deleted')) {
-            return true;
-        }
-
-        if ($entity->isDirty('status') && in_array($entity->get('status'), ['draft', 'off'])) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * See if a document has to be added to index
-     *
-     * @param \BEdita\Core\Model\Entity\ObjectEntity $entity Document entity
-     * @return bool
-     */
-    protected function documentToAdd(ObjectEntity $entity): bool
-    {
-        if ($entity->isDirty('deleted') && !$entity->get('deleted')) {
-            return true;
-        }
-
-        if ($entity->isDirty('status') && $entity->get('status') === 'on') {
-            return true;
-        }
-
-        return false;
     }
 
     /**
