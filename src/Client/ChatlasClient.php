@@ -73,9 +73,9 @@ class ChatlasClient
      * @param string $path The path for API request
      * @param array $query The query params
      * @param array<string, string> $headers The request headers
-     * @return array
+     * @return \Cake\Http\Response
      */
-    public function get(string $path = '', array $query = [], array $headers = []): array
+    public function get(string $path = '', array $query = [], array $headers = []): Response
     {
         return $this->apiRequest(compact('path', 'query', 'headers') + [
             'method' => 'get',
@@ -88,9 +88,9 @@ class ChatlasClient
      * @param string $path The path for API request
      * @param array $body The body data
      * @param array<string, string> $headers The request headers
-     * @return array
+     * @return \Cake\Http\Response
      */
-    public function post(string $path = '', array $body = [], array $headers = []): array
+    public function post(string $path = '', array $body = [], array $headers = []): Response
     {
         return $this->apiRequest(compact('path', 'body', 'headers') + [
             'method' => 'post',
@@ -102,9 +102,9 @@ class ChatlasClient
      *
      * @param string $path The path for API request
      * @param \Cake\Http\Client\FormData $form The form data
-     * @return array
+     * @return \Cake\Http\Response
      */
-    public function postMultipart(string $path, FormData $form): array
+    public function postMultipart(string $path, FormData $form): Response
     {
         return $this->apiRequest(compact('path') + [
             'method' => 'post',
@@ -119,9 +119,9 @@ class ChatlasClient
      * @param string $path The path for API request
      * @param array $body The body data
      * @param array<string, string> $headers The request headers
-     * @return array
+     * @return \Cake\Http\Response
      */
-    public function patch(string $path = '', array $body = [], array $headers = []): array
+    public function patch(string $path = '', array $body = [], array $headers = []): Response
     {
         return $this->apiRequest(compact('path', 'body', 'headers') + [
             'method' => 'patch',
@@ -134,9 +134,9 @@ class ChatlasClient
      * @param string $path The path for API request
      * @param array $body The body data
      * @param array<string, string> $headers The request headers
-     * @return array
+     * @return \Cake\Http\Response
      */
-    public function delete(string $path = '', array $body = [], array $headers = []): array
+    public function delete(string $path = '', array $body = [], array $headers = []): Response
     {
         return $this->apiRequest(compact('path', 'body', 'headers') + [
             'method' => 'delete',
@@ -154,9 +154,9 @@ class ChatlasClient
      * - headers => an array of headers
      *
      * @param array $options The request options
-     * @return array
+     * @return \Cake\Http\Response
      */
-    protected function apiRequest(array $options): array
+    protected function apiRequest(array $options): Response
     {
         $options += [
             'method' => '',
@@ -181,7 +181,6 @@ class ChatlasClient
         try {
             $response = $this->sendRequest($options);
             $statusCode = $response->getStatusCode();
-            $body = (array)$response->getJson();
         } catch (Throwable $e) {
             $this->handleError($e->getCode(), $e->getMessage());
         }
@@ -189,7 +188,7 @@ class ChatlasClient
             $this->handleError($statusCode, (string)json_encode($body));
         }
 
-        return $body;
+        return $response;
     }
 
     /**
@@ -201,9 +200,6 @@ class ChatlasClient
     protected function sendRequest(array $options): Response
     {
         $method = strtolower($options['method']);
-        if (!in_array($method, ['get', 'post', 'patch', 'delete'])) {
-            throw new MethodNotAllowedException();
-        }
         $headers = ['headers' => (array)$options['headers']];
         if ($method === 'get') {
             return $this->client->get(

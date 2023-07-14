@@ -8,6 +8,7 @@ declare(strict_types=1);
  */
 namespace BEdita\Chatlas\Event;
 
+use ArrayObject;
 use BEdita\Chatlas\Index\CollectionHandler;
 use BEdita\Core\Model\Entity\ObjectEntity;
 use BEdita\Core\ORM\Association\RelatedTo;
@@ -44,12 +45,13 @@ class ChatlasEventHandler implements EventListenerInterface
      *
      * @param \Cake\Event\EventInterface $event The dispatched event.
      * @param \Cake\Datasource\EntityInterface $entity The Entity saved.
+     * @param \ArrayObject $options The options
      * @return void
      */
-    public function afterSave(EventInterface $event, EntityInterface $entity): void
+    public function afterSave(EventInterface $event, EntityInterface $entity, ArrayObject $options): void
     {
         $type = (string)$entity->get('type');
-        if (empty($type) || !$entity instanceof ObjectEntity) {
+        if (empty($type) || !$entity instanceof ObjectEntity || !empty($options['_skipAfterSave'])) {
             return;
         }
         $handler = new CollectionHandler();

@@ -80,28 +80,10 @@ class CollectionHandler
         $msg = sprintf('Creating collection "%s"', $collection->get('title'));
         $this->log($msg, 'info');
 
-        $result = $this->chatlas->post('/collections', $this->chatlasCollection($collection));
-        $collection->set('collection_uuid', Hash::get($result, 'uuid'));
+        $response = $this->chatlas->post('/collections', $this->chatlasCollection($collection));
+        $collection->set('collection_uuid', Hash::get($response->getJson(), 'uuid'));
         $collection->set('collection_updated', date('c'));
-        $this->saveObject($collection);
-    }
-
-    /**
-     * Save object entity removing `afterSave` listener to avoid infinite loops
-     *
-     * @param \BEdita\Core\Model\Entity\ObjectEntity $entity Object entity
-     * @return void
-     */
-    protected function saveObject(ObjectEntity $entity): void
-    {
-        $listeners = EventManager::instance()->listeners('Model.afterSave');
-        foreach ($listeners as $listener) {
-            $instance = Hash::get($listener, 'callable.0');
-            if ($instance && $instance instanceof ChatlasEventHandler) {
-                EventManager::instance()->off($instance);
-            }
-        }
-        $entity->getTable()->saveOrFail($entity);
+        $collection->getTable()->saveOrFail($collection, ['_skipAfterSave' => true]);
     }
 
     /**
@@ -117,7 +99,7 @@ class CollectionHandler
         $path = sprintf('/collections/%s', $collection->get('collection_uuid'));
         $this->chatlas->patch($path, $this->chatlasCollection($collection));
         $collection->set('collection_updated', date('c'));
-        $this->saveObject($collection);
+        $collection->getTable()->saveOrFail($collection, ['_skipAfterSave' => true]);
     }
 
     /**
@@ -151,6 +133,7 @@ class CollectionHandler
         $this->log($msg, 'info');
         $path = sprintf('/collections/%s', $collection->get('collection_uuid'));
         $this->chatlas->delete($path);
+        $collection->set('collection_uuid', null);
     }
 
     /**
@@ -183,7 +166,7 @@ class CollectionHandler
         ];
         $this->chatlas->post('/index', $body);
         $entity->set('index_updated', date('c'));
-        $this->saveObject($entity);
+        $entity->getTable()->saveOrFail($entity, ['_skipAfterSave' => true]);
     }
 
     /**
@@ -226,7 +209,7 @@ class CollectionHandler
             $form
         );
         $entity->set('index_updated', date('c'));
-        $this->saveObject($entity);
+        $entity->getTable()->saveOrFail($entity, ['_skipAfterSave' => true]);
     }
 
     /**
@@ -330,6 +313,6 @@ class CollectionHandler
         $path = sprintf('/index/%s/%s', $collection->get('collection_uuid'), $entity->get('id'));
         $this->chatlas->delete($path);
         $entity->set('index_updated', null);
-        $this->saveObject($entity);
+        $entity->getTable()->saveOrFail($entity, ['_skipAfterSave' => true]);
     }
 }
