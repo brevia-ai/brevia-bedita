@@ -5,11 +5,8 @@ namespace BEdita\Chatlas\Client\Test\TestCase;
 
 use BEdita\Chatlas\Client\ChatlasClient;
 use Cake\Core\Configure;
-use Cake\Http\Client;
 use Cake\Http\Client\Adapter\Stream;
-use Cake\Http\Client\FormData;
 use Cake\Http\Client\Response;
-use Cake\Http\Exception\HttpException;
 use Cake\TestSuite\TestCase;
 
 /**
@@ -32,9 +29,10 @@ class ChatlasClientTest extends TestCase
     /**
      * Create client Mock with response
      */
-    protected function mockWithResponse(string $body): void
+    protected function mockWithResponse(string $body, int $status = 200): void
     {
         $response = new Response([], (string)$body);
+        $response = $response->withStatus($status);
 
         $mock = $this->getMockBuilder(Stream::class)
             ->getMock();
@@ -42,9 +40,7 @@ class ChatlasClientTest extends TestCase
             ->method('send')
             ->will($this->returnValue([$response]));
 
-        Configure::write('Chatlas', [
-            'client' => ['adapter' => $mock, 'protocolVersion' => '2'],
-        ]);
+        Configure::write('Chatlas.adapter', $mock);
     }
 
     /**
@@ -59,7 +55,7 @@ class ChatlasClientTest extends TestCase
         $this->mockWithResponse(json_encode(['gustavo']));
         $chatlasClient = new ChatlasClient();
         $result = $chatlasClient->get();
-        static::assertEquals('gustavo', $result);
+        static::assertEquals(['gustavo'], $result);
     }
 
     /**
