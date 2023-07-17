@@ -9,10 +9,8 @@ declare(strict_types=1);
 namespace BEdita\Chatlas\Index;
 
 use BEdita\Chatlas\Client\ChatlasClient;
-use BEdita\Chatlas\Event\ChatlasEventHandler;
 use BEdita\Core\Filesystem\FilesystemRegistry;
 use BEdita\Core\Model\Entity\ObjectEntity;
-use Cake\Event\EventManager;
 use Cake\Http\Client\FormData;
 use Cake\Log\LogTrait;
 use Cake\Utility\Hash;
@@ -80,28 +78,10 @@ class CollectionHandler
         $msg = sprintf('Creating collection "%s"', $collection->get('title'));
         $this->log($msg, 'info');
 
-        $result = $this->chatlas->post('/collections', $this->chatlasCollection($collection));
-        $collection->set('collection_uuid', Hash::get($result, 'uuid'));
+        $response = $this->chatlas->post('/collections', $this->chatlasCollection($collection));
+        $collection->set('collection_uuid', Hash::get($response->getJson(), 'uuid'));
         $collection->set('collection_updated', date('c'));
-        $this->saveObject($collection);
-    }
-
-    /**
-     * Save object entity removing `afterSave` listener to avoid infinite loops
-     *
-     * @param \BEdita\Core\Model\Entity\ObjectEntity $entity Object entity
-     * @return void
-     */
-    protected function saveObject(ObjectEntity $entity): void
-    {
-        $listeners = EventManager::instance()->listeners('Model.afterSave');
-        foreach ($listeners as $listener) {
-            $instance = Hash::get($listener, 'callable.0');
-            if ($instance && $instance instanceof ChatlasEventHandler) {
-                EventManager::instance()->off($instance);
-            }
-        }
-        $entity->getTable()->saveOrFail($entity);
+        $collection->getTable()->saveOrFail($collection, ['_skipAfterSave' => true]);
     }
 
     /**
@@ -117,7 +97,7 @@ class CollectionHandler
         $path = sprintf('/collections/%s', $collection->get('collection_uuid'));
         $this->chatlas->patch($path, $this->chatlasCollection($collection));
         $collection->set('collection_updated', date('c'));
-        $this->saveObject($collection);
+        $collection->getTable()->saveOrFail($collection, ['_skipAfterSave' => true]);
     }
 
     /**
@@ -151,6 +131,7 @@ class CollectionHandler
         $this->log($msg, 'info');
         $path = sprintf('/collections/%s', $collection->get('collection_uuid'));
         $this->chatlas->delete($path);
+        $collection->set('collection_uuid', null);
     }
 
     /**
@@ -183,7 +164,7 @@ class CollectionHandler
         ];
         $this->chatlas->post('/index', $body);
         $entity->set('index_updated', date('c'));
-        $this->saveObject($entity);
+        $entity->getTable()->saveOrFail($entity, ['_skipAfterSave' => true]);
     }
 
     /**
@@ -193,7 +174,7 @@ class CollectionHandler
      * @param \BEdita\Core\Model\Entity\ObjectEntity $entity Document entity
      * @return void
      */
-    public function uploadDocument(ObjectEntity $collection, ObjectEntity $entity): void
+    protected function uploadDocument(ObjectEntity $collection, ObjectEntity $entity): void
     {
         $form = new FormData();
         if (empty($entity->get('streams'))) {
@@ -226,7 +207,7 @@ class CollectionHandler
             $form
         );
         $entity->set('index_updated', date('c'));
-        $this->saveObject($entity);
+        $entity->getTable()->saveOrFail($entity, ['_skipAfterSave' => true]);
     }
 
     /**
@@ -239,13 +220,21 @@ class CollectionHandler
      */
     public function updateDocument(ObjectEntity $collection, ObjectEntity $entity, bool $forceAdd = false): void
     {
-        if ($entity->isNew() || $this->documentToAdd($entity) || $forceAdd) {
+        if (
+            $entity->isNew() ||
+            ($entity->isDirty('deleted') && !$entity->get('deleted')) ||
+            ($entity->isDirty('status') && $entity->get('status') === 'on') ||
+            $forceAdd
+        ) {
             $this->log($this->logMessage('Add', $collection, $entity), 'info');
             $this->addDocument($collection, $entity);
 
             return;
         }
-        if ($this->documentToRemove($entity)) {
+        if (
+            ($entity->isDirty('deleted') && $entity->get('deleted')) ||
+            ($entity->isDirty('status') && in_array($entity->get('status'), ['draft', 'off']))
+        ) {
             $this->removeDocument($collection, $entity);
 
             return;
@@ -263,44 +252,6 @@ class CollectionHandler
                 return;
             }
         }
-    }
-
-    /**
-     * See if a document has to be removed from index
-     *
-     * @param \BEdita\Core\Model\Entity\ObjectEntity $entity Document entity
-     * @return bool
-     */
-    protected function documentToRemove(ObjectEntity $entity): bool
-    {
-        if ($entity->isDirty('deleted') && $entity->get('deleted')) {
-            return true;
-        }
-
-        if ($entity->isDirty('status') && in_array($entity->get('status'), ['draft', 'off'])) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * See if a document has to be added to index
-     *
-     * @param \BEdita\Core\Model\Entity\ObjectEntity $entity Document entity
-     * @return bool
-     */
-    protected function documentToAdd(ObjectEntity $entity): bool
-    {
-        if ($entity->isDirty('deleted') && !$entity->get('deleted')) {
-            return true;
-        }
-
-        if ($entity->isDirty('status') && $entity->get('status') === 'on') {
-            return true;
-        }
-
-        return false;
     }
 
     /**
@@ -330,6 +281,6 @@ class CollectionHandler
         $path = sprintf('/index/%s/%s', $collection->get('collection_uuid'), $entity->get('id'));
         $this->chatlas->delete($path);
         $entity->set('index_updated', null);
-        $this->saveObject($entity);
+        $entity->getTable()->saveOrFail($entity, ['_skipAfterSave' => true]);
     }
 }

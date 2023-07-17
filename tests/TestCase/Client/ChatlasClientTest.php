@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
 
-namespace BEdita\Chatlas\Client\Test\TestCase;
+namespace BEdita\Chatlas\Test\TestCase\Client;
 
 use BEdita\Chatlas\Client\ChatlasClient;
+use BEdita\Chatlas\Test\TestMockTrait;
 use Cake\Core\Configure;
-use Cake\Http\Client;
 use Cake\Http\Client\FormData;
 use Cake\Http\Exception\HttpException;
 use Cake\TestSuite\TestCase;
@@ -15,57 +15,7 @@ use Cake\TestSuite\TestCase;
  */
 class ChatlasClientTest extends TestCase
 {
-    protected $client;
-
-    /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|\Cake\Http\Client
-     */
-    protected $httpClient;
-
-    /**
-     * @inheritDoc
-     */
-    public function setUp(): void
-    {
-        parent::setUp();
-
-        Configure::write('Chatlas', [
-            'apiUrl' => 'https://api.chatlasapp.com',
-            'token' => 'test-token',
-        ]);
-        $client = new class extends ChatlasClient {
-            /**
-             * API internal HTTP client
-             *
-             * @var \Cake\Http\Client
-             */
-            public Client $client;
-
-            public array $mockResponse = [];
-
-            /**
-             * Wrapper for handleError() method.
-             *
-             * @param int $code Error code
-             * @param string $message Error message
-             * @return void
-             */
-            public function myHandleError(int $code, string $message): void
-            {
-                $this->handleError($code, $message);
-            }
-
-            /**
-             * @inheritDoc
-             */
-            public function apiRequest(array $options = []): array
-            {
-                return $this->mockResponse + $options;
-            }
-        };
-        $this->httpClient = $this->createMock(Client::class);
-        $this->client = new $client($this->httpClient);
-    }
+    use TestMockTrait;
 
     /**
      * Test `__construct()` method.
@@ -76,10 +26,10 @@ class ChatlasClientTest extends TestCase
      */
     public function testConstruct(): void
     {
-        $cakeClient = $this->client->client;
-        static::assertInstanceof(Client::class, $cakeClient);
-        static::assertInstanceof(ChatlasClient::class, $this->client);
-        static::assertSame('api.chatlasapp.com', $cakeClient->getConfig('host'));
+        $this->mockClientResponse();
+        $chatlasClient = new ChatlasClient();
+        $response = $chatlasClient->get();
+        static::assertEquals(200, $response->getStatusCode());
     }
 
     /**
@@ -87,19 +37,17 @@ class ChatlasClientTest extends TestCase
      *
      * @return void
      * @covers ::get()
+     * @covers ::apiRequest()
+     * @covers ::sendRequest()
      */
     public function testGet(): void
     {
-        $mockResponse = ['test' => 'get response'];
-        $this->client->mockResponse = $mockResponse;
-        $expected = $mockResponse + [
-            'path' => '/test',
-            'query' => [],
-            'headers' => [],
-            'method' => 'get',
-        ];
-        $actual = $this->client->get('/test');
-        static::assertEquals($expected, $actual);
+        $expected = ['test' => 'get response'];
+        $this->mockClientResponse(json_encode($expected));
+        $chatlasClient = new ChatlasClient();
+        $response = $chatlasClient->get('/test');
+        static::assertEquals($expected, $response->getJson());
+        static::assertEquals(200, $response->getStatusCode());
     }
 
     /**
@@ -107,19 +55,17 @@ class ChatlasClientTest extends TestCase
      *
      * @return void
      * @covers ::post()
+     * @covers ::apiRequest()
+     * @covers ::sendRequest()
      */
     public function testPost(): void
     {
-        $mockResponse = ['test' => 'post response'];
-        $this->client->mockResponse = $mockResponse;
-        $expected = $mockResponse + [
-            'path' => '/test',
-            'headers' => [],
-            'method' => 'post',
-            'body' => [],
-        ];
-        $actual = $this->client->post('/test');
-        static::assertEquals($expected, $actual);
+        $expected = ['test' => 'post response'];
+        $this->mockClientResponse(json_encode($expected));
+        $chatlasClient = new ChatlasClient();
+        $response = $chatlasClient->post('/test', ['input' => 'data']);
+        static::assertEquals($expected, $response->getJson());
+        static::assertEquals(200, $response->getStatusCode());
     }
 
     /**
@@ -130,16 +76,12 @@ class ChatlasClientTest extends TestCase
      */
     public function testPostMultipart(): void
     {
-        $mockResponse = ['test' => 'post multipart response'];
-        $this->client->mockResponse = $mockResponse;
-        $expected = $mockResponse + [
-            'path' => '/test',
-            'headers' => ['Content-Type' => 'application/x-www-form-urlencoded'],
-            'method' => 'post',
-            'body' => '',
-        ];
-        $actual = $this->client->postMultipart('/test', new FormData());
-        static::assertEquals($expected, $actual);
+        $expected = ['test' => 'post multipart response'];
+        $this->mockClientResponse(json_encode($expected));
+        $chatlasClient = new ChatlasClient();
+        $response = $chatlasClient->postMultipart('/test', new FormData());
+        static::assertEquals($expected, $response->getJson());
+        static::assertEquals(200, $response->getStatusCode());
     }
 
     /**
@@ -147,19 +89,17 @@ class ChatlasClientTest extends TestCase
      *
      * @return void
      * @covers ::patch()
+     * @covers ::apiRequest()
+     * @covers ::sendRequest()
      */
     public function testPatch(): void
     {
-        $mockResponse = ['test' => 'patch response'];
-        $this->client->mockResponse = $mockResponse;
-        $expected = $mockResponse + [
-            'path' => '/test',
-            'headers' => [],
-            'method' => 'patch',
-            'body' => [],
-        ];
-        $actual = $this->client->patch('/test');
-        static::assertEquals($expected, $actual);
+        $expected = ['test' => 'patch response'];
+        $this->mockClientResponse(json_encode($expected));
+        $chatlasClient = new ChatlasClient();
+        $response = $chatlasClient->patch('/test');
+        static::assertEquals($expected, $response->getJson());
+        static::assertEquals(200, $response->getStatusCode());
     }
 
     /**
@@ -167,41 +107,15 @@ class ChatlasClientTest extends TestCase
      *
      * @return void
      * @covers ::delete()
+     * @covers ::apiRequest()
+     * @covers ::sendRequest()
      */
     public function testDelete(): void
     {
-        $mockResponse = ['test' => 'delete response'];
-        $this->client->mockResponse = $mockResponse;
-        $expected = $mockResponse + [
-            'path' => '/test',
-            'headers' => [],
-            'method' => 'delete',
-            'body' => [],
-        ];
-        $actual = $this->client->delete('/test');
-        static::assertEquals($expected, $actual);
-    }
-
-    /**
-     * Test `apiRequest()` method.
-     *
-     * @return void
-     * @covers ::apiRequest()
-     */
-    public function testApiRequest(): void
-    {
-        static::markTestIncomplete('This test has not been implemented yet.');
-    }
-
-    /**
-     * Test `sendRequest()` method.
-     *
-     * @return void
-     * @covers ::sendRequest()
-     */
-    public function testSendRequest(): void
-    {
-        static::markTestIncomplete('This test has not been implemented yet.');
+        $this->mockClientResponse();
+        $chatlasClient = new ChatlasClient();
+        $response = $chatlasClient->delete('/test');
+        static::assertEquals(200, $response->getStatusCode());
     }
 
     /**
@@ -209,12 +123,32 @@ class ChatlasClientTest extends TestCase
      *
      * @return void
      * @covers ::handleError()
+     * @covers ::apiRequest()
      */
     public function testHandleError(): void
     {
         $this->expectException(HttpException::class);
-        $this->expectExceptionMessage('test');
+        $this->expectExceptionMessage('Chatlas API error: ');
         $this->expectExceptionCode(500);
-        $this->client->myHandleError(500, 'test');
+        $this->mockClientResponse('', 500);
+        $chatlasClient = new ChatlasClient();
+        $chatlasClient->delete('/test');
+    }
+
+    /**
+     * Test `handleError()` method with a bad url exception
+     *
+     * @return void
+     * @covers ::handleError()
+     * @covers ::apiRequest()
+     */
+    public function testHandleErrorUrl(): void
+    {
+        $this->expectException(HttpException::class);
+        $this->expectExceptionMessage('Chatlas API error: The source URI string appears to be malformed');
+        $this->expectExceptionCode(500);
+        Configure::write('Chatlas.apiUrl', 'bad url');
+        $chatlasClient = new ChatlasClient();
+        $chatlasClient->get('/test');
     }
 }
