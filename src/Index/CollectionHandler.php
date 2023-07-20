@@ -46,6 +46,7 @@ class CollectionHandler
         'modified_by',
         'collection_uuid',
         'collection_updated',
+        '_meta',
     ];
 
     /**
