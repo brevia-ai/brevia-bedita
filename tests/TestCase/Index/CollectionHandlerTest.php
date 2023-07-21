@@ -81,6 +81,7 @@ class CollectionHandlerTest extends TestCase
     {
         $entity = $this->mockEntity('files', [
             'index_updated' => null,
+            'index_status' => null,
             'status' => 'on',
         ]);
         $entity->setNew(false);
@@ -155,6 +156,7 @@ class CollectionHandlerTest extends TestCase
     {
         $entity = $this->mockEntity('documents', [
             'index_updated' => null,
+            'index_status' => null,
             'status' => 'on',
         ]);
         $entity->setNew(false);
@@ -163,6 +165,7 @@ class CollectionHandlerTest extends TestCase
         $handler = new CollectionHandler();
         $handler->updateDocument(new ObjectEntity(), $entity);
         static::assertNotEmpty($entity->get('index_updated'));
+        static::assertEquals('done', $entity->get('index_status'));
     }
 
     /**
@@ -176,10 +179,12 @@ class CollectionHandlerTest extends TestCase
     {
         $entity = $this->mockEntity('documents', [
             'index_updated' => null,
+            'index_status' => null,
         ]);
         $handler = new CollectionHandler();
         $handler->updateDocument(new ObjectEntity(), $entity);
         static::assertNull($entity->get('index_updated'));
+        static::assertNull($entity->get('index_status'));
     }
 
     /**
@@ -278,7 +283,9 @@ class CollectionHandlerTest extends TestCase
         $this->mockClientResponse();
         $handler = new CollectionHandler();
         $entity->set('index_updated', date('c'));
+        $entity->set('index_status', 'done');
         $handler->removeDocument(new ObjectEntity(), $entity);
         static::assertNull($entity->get('index_updated'));
+        static::assertNull($entity->get('index_status'));
     }
 }

@@ -168,6 +168,7 @@ class CollectionHandler
         ];
         $this->chatlas->post('/index', $body);
         $entity->set('index_updated', date('c'));
+        $entity->set('index_status', 'done');
         $entity->getTable()->saveOrFail($entity, ['_skipAfterSave' => true]);
     }
 
@@ -308,6 +309,7 @@ class CollectionHandler
         $this->log($this->logMessage('Remove', $collection, $entity), 'info');
         $path = sprintf('/index/%s/%s', $collection->get('collection_uuid'), $entity->get('id'));
         $this->chatlas->delete($path);
+        $entity->set('index_status', null);
         $entity->set('index_updated', null);
         $entity->getTable()->saveOrFail($entity, ['_skipAfterSave' => true]);
     }
