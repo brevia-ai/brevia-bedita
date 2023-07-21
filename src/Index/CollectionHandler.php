@@ -10,9 +10,11 @@ namespace BEdita\Chatlas\Index;
 
 use BEdita\Chatlas\Client\ChatlasClient;
 use BEdita\Core\Filesystem\FilesystemRegistry;
+use BEdita\Core\Model\Entity\AsyncJob;
 use BEdita\Core\Model\Entity\ObjectEntity;
 use Cake\Http\Client\FormData;
 use Cake\Log\LogTrait;
+use Cake\ORM\Locator\LocatorAwareTrait;
 use Cake\Utility\Hash;
 use Laminas\Diactoros\UploadedFile;
 
@@ -21,6 +23,7 @@ use Laminas\Diactoros\UploadedFile;
  */
 class CollectionHandler
 {
+    use LocatorAwareTrait;
     use LogTrait;
 
     /**
@@ -152,7 +155,7 @@ class CollectionHandler
             return;
         }
         if ($entity->get('type') === 'files') {
-            $this->uploadDocument($collection, $entity);
+            $this->uploadDocumentJob($collection, $entity);
 
             return;
         }
@@ -175,7 +178,7 @@ class CollectionHandler
      * @param \BEdita\Core\Model\Entity\ObjectEntity $entity Document entity
      * @return void
      */
-    protected function uploadDocument(ObjectEntity $collection, ObjectEntity $entity): void
+    public function uploadDocument(ObjectEntity $collection, ObjectEntity $entity): void
     {
         $form = new FormData();
         if (empty($entity->get('streams'))) {
@@ -208,6 +211,30 @@ class CollectionHandler
             $form
         );
         $entity->set('index_updated', date('c'));
+        $entity->set('index_status', 'done');
+        $entity->getTable()->saveOrFail($entity, ['_skipAfterSave' => true]);
+    }
+
+    /**
+     * Create async job to upload file to index
+     *
+     * @param \BEdita\Core\Model\Entity\ObjectEntity $collection Collection entity
+     * @param \BEdita\Core\Model\Entity\ObjectEntity $entity File entity
+     * @return void
+     */
+    protected function uploadDocumentJob(ObjectEntity $collection, ObjectEntity $entity): void
+    {
+        $asyncJob = new AsyncJob([
+            'service' => 'BEdita/Chatlas.IndexFile',
+            'max_attempts' => 3,
+            'priority' => 5,
+            'payload' => [
+                'collection_id' => $collection->id,
+                'file_id' => $entity->id,
+            ],
+        ]);
+        $this->fetchTable('AsyncJobs')->saveOrFail($asyncJob);
+        $entity->set('index_status', 'processing');
         $entity->getTable()->saveOrFail($entity, ['_skipAfterSave' => true]);
     }
 

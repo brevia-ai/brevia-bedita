@@ -8,7 +8,9 @@ use BEdita\Core\Model\Entity\ObjectType;
 use Cake\Core\Configure;
 use Cake\Http\Client\Adapter\Stream;
 use Cake\Http\Client\Response;
+use Cake\ORM\Entity;
 use Cake\ORM\Table;
+use Cake\ORM\TableRegistry;
 
 trait TestMockTrait
 {
@@ -77,5 +79,27 @@ trait TestMockTrait
         $mockEntity->set($data);
 
         return $mockEntity;
+    }
+
+    /**
+     * Create mock table
+     *
+     * @param string $alias Table alias
+     * @param Entity $entity Entity
+     * @return void
+     */
+    protected function mockTable(string $alias, Entity $entity): void
+    {
+        $mockTable = $this->getMockBuilder(Table::class)
+            ->onlyMethods(['saveOrFail', 'get'])
+            ->getMock();
+        $mockTable->method('saveOrFail')
+            ->willReturn($entity);
+        $mockTable->method('get')
+            ->willReturn($entity);
+
+        $locator = TableRegistry::getTableLocator();
+        $locator->remove($alias);
+        $locator->set($alias, $mockTable);
     }
 }

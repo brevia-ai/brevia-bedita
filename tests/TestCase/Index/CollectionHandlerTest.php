@@ -6,6 +6,7 @@ namespace BEdita\Chatlas\Test\TestCase\Index;
 use BEdita\Chatlas\Index\CollectionHandler;
 use BEdita\Chatlas\Test\TestMockTrait;
 use BEdita\Core\Filesystem\FilesystemRegistry;
+use BEdita\Core\Model\Entity\AsyncJob;
 use BEdita\Core\Model\Entity\ObjectEntity;
 use BEdita\Core\Model\Entity\Stream;
 use Cake\TestSuite\TestCase;
@@ -69,12 +70,33 @@ class CollectionHandlerTest extends TestCase
     }
 
     /**
+     * Test `uploadDocumentJob()` method.
+     *
+     * @return void
+     * @covers ::uploadDocumentJob()
+     * @covers ::updateDocument()
+     * @covers ::addDocument()
+     */
+    public function testUploadDocumentJob(): void
+    {
+        $entity = $this->mockEntity('files', [
+            'index_updated' => null,
+            'status' => 'on',
+        ]);
+        $entity->setNew(false);
+        $handler = new CollectionHandler();
+        $collection = new ObjectEntity();
+        $this->mockTable('AsyncJobs', new AsyncJob());
+        $handler->updateDocument($collection, $entity);
+        static::assertNull($entity->get('index_updated'));
+        static::assertEquals('processing', $entity->get('index_status'));
+    }
+
+    /**
      * Test `uploadDocument()` method.
      *
      * @return void
      * @covers ::uploadDocument()
-     * @covers ::updateDocument()
-     * @covers ::addDocument()
      */
     public function testUploadEmptyStream(): void
     {
@@ -85,7 +107,7 @@ class CollectionHandlerTest extends TestCase
         $entity->setNew(false);
         $handler = new CollectionHandler();
         $collection = new ObjectEntity();
-        $handler->updateDocument($collection, $entity);
+        $handler->uploadDocument($collection, $entity);
         static::assertNull($entity->get('index_updated'));
     }
 
@@ -118,7 +140,7 @@ class CollectionHandlerTest extends TestCase
 
         $handler = new CollectionHandler();
         $collection = new ObjectEntity();
-        $handler->updateDocument($collection, $entity);
+        $handler->uploadDocument($collection, $entity);
         static::assertNotEmpty($entity->get('index_updated'));
     }
 
