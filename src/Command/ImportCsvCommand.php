@@ -29,6 +29,8 @@ use Cake\Utility\Hash;
 
 /**
  * Import CSV and create questions or documents
+ *
+ * @property \BEdita\Core\Model\Table\ObjectsTable $Collections
  */
 class ImportCsvCommand extends Command
 {
@@ -43,11 +45,9 @@ class ImportCsvCommand extends Command
     protected ChatlasClient $chatlas;
 
     /**
-     * This object's default table alias.
-     *
-     * @var string|null
+     * @inheritDoc
      */
-    protected $defaultTable = 'Collections';
+    public $defaultTable = 'Collections';
 
     /**
      * @inheritDoc
