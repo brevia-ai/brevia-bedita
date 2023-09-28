@@ -2,17 +2,10 @@
 declare(strict_types=1);
 
 /**
- * BEdita, API-first content management framework
- * Copyright 2022 Atlas Srl, Chialab Srl
+ * Chatlas BEdita plugin
  *
- * This file is part of BEdita: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published
- * by the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * See LICENSE.LGPL or <http://gnu.org/licenses/lgpl-3.0.html> for more details.
+ * Copyright 2023 Atlas Srl
  */
-
 namespace BEdita\Chatlas\Command;
 
 use BEdita\Chatlas\Client\ChatlasClient;
@@ -95,7 +88,7 @@ class ImportCsvCommand extends Command
         $response = $this->chatlas->get('/collections', compact('name'));
         $collectionId = Hash::get($response->getJson(), '0.cmetadata.id');
         if (empty($collectionId)) {
-            $io->abort(sprintf('Collection ID not found: %s', $name));
+            $io->abort(sprintf('Collection not found: %s', $name));
         }
         $collection = $this->Collections->get($collectionId);
         $this->readCSVFile($filepath);
