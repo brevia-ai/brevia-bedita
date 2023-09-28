@@ -10,8 +10,6 @@ namespace BEdita\Chatlas\Command;
 
 use BEdita\Chatlas\Client\ChatlasClient;
 use BEdita\Chatlas\Utility\ReadCSVTrait;
-use BEdita\Core\Model\Table\RolesTable;
-use BEdita\Core\Model\Table\UsersTable;
 use BEdita\Core\Utility\LoggedUser;
 use Cake\Command\Command;
 use Cake\Console\Arguments;
