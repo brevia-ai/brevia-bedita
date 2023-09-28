@@ -60,7 +60,7 @@ class ImportCsvCommand extends Command
                 'required' => true,
             ])
             ->addOption('collection', [
-                'help' => 'Collection used to index, ID or unique name',
+                'help' => 'Collection used to index (use the unique collection name)',
                 'short' => 'c',
                 'required' => true,
             ]);
@@ -94,7 +94,7 @@ class ImportCsvCommand extends Command
         $this->readCSVFile($filepath);
         $Table = $this->fetchTable($args->getOption('type'));
         $entities = [];
-       LoggedUser::setUserAdmin();
+        LoggedUser::setUserAdmin();
         foreach ($this->csvData as $item) {
             $item['status'] = 'on';
             $entity = $Table->newEntity($item);
