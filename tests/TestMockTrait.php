@@ -91,12 +91,17 @@ trait TestMockTrait
     protected function mockTable(string $alias, Entity $entity): void
     {
         $mockTable = $this->getMockBuilder(Table::class)
-            ->onlyMethods(['saveOrFail', 'get'])
+            ->onlyMethods(['saveOrFail', 'get', 'newEntity'])
+            ->addMethods(['addRelated'])
             ->getMock();
         $mockTable->method('saveOrFail')
             ->willReturn($entity);
         $mockTable->method('get')
             ->willReturn($entity);
+        $mockTable->method('newEntity')
+            ->willReturn($entity);
+        $mockTable->method('addRelated')
+            ->willReturn(null);
 
         $locator = TableRegistry::getTableLocator();
         $locator->remove($alias);
