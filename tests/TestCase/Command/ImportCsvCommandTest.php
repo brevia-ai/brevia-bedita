@@ -15,7 +15,7 @@ use Cake\Routing\Router;
 use Cake\TestSuite\TestCase;
 
 /**
- * {@see BEdita\Chatlas\Command\ImportCsvCommand} Test Case
+ * {@see \BEdita\Chatlas\Command\ImportCsvCommand} Test Case
  *
  * @coversDefaultClass \BEdita\Chatlas\Command\ImportCsvCommand
  */
@@ -61,7 +61,7 @@ class ImportCsvCommandTest extends TestCase
         $this->assertExitError('File not found: /not/existing/path');
 
         $this->mockClientResponse(json_encode([]));
-        $csvPath = sprintf('%s/tests/files/test.csv', getcwd());
+        $csvPath = sprintf('%s/tests/files/import.csv', getcwd());
         $this->exec(sprintf('import_csv --file %s --collection gustavo', $csvPath));
         $this->assertExitError('Collection not found: gustavo');
     }
@@ -77,7 +77,7 @@ class ImportCsvCommandTest extends TestCase
         $this->mockTable('Collections', new ObjectEntity());
         $this->mockTable('documents', new ObjectEntity());
         $this->mockClientResponse('[{"cmetadata": {"id":"1"}}]');
-        $csvPath = sprintf('%s/tests/files/test.csv', getcwd());
+        $csvPath = sprintf('%s/tests/files/import.csv', getcwd());
         $this->exec(sprintf('import_csv --file %s --collection gustavo', $csvPath));
         $this->assertExitSuccess('Done');
     }
