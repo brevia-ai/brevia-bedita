@@ -94,7 +94,7 @@ class ImportCsvCommand extends Command
         $this->readCSVFile($filepath);
         $Table = $this->fetchTable($args->getOption('type'));
         $entities = [];
-        LoggedUser::setUser(['id' => UsersTable::ADMIN_USER, 'roles' => [['id' => RolesTable::ADMIN_ROLE]]]);
+       LoggedUser::setUserAdmin();
         foreach ($this->csvData as $item) {
             $item['status'] = 'on';
             $entity = $Table->newEntity($item);
