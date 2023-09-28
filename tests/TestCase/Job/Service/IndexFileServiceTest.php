@@ -11,7 +11,7 @@ use BEdita\Core\Model\Entity\Stream;
 use Cake\TestSuite\TestCase;
 
 /**
- * @coversDefaultClass \BEdita\Chatlas\Job\Service\IndexFileServiceTest
+ * @coversDefaultClass \BEdita\Chatlas\Job\Service\IndexFileService
  */
 class IndexFileServiceTest extends TestCase
 {
