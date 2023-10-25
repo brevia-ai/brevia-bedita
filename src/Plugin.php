@@ -6,7 +6,7 @@ declare(strict_types=1);
  *
  * Copyright 2023 Atlas Srl
  */
-namespace Brevia;
+namespace Brevia\BEdita;
 
 use Brevia\BEdita\Event\BreviaEventHandler;
 use Cake\Core\BasePlugin;

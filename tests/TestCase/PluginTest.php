@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Brevia\BEdita\Test\TestCase;
 
-use Brevia\Plugin;
+use Brevia\BEdita\Plugin;
 use Cake\Core\Configure;
 use Cake\Core\PluginApplicationInterface;
 use Cake\TestSuite\TestCase;
