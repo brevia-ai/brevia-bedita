@@ -62,7 +62,6 @@ class BreviaClient
                 'Authorization' => sprintf('Bearer %s', (string)Configure::read('Brevia.token')),
             ];
         }
-
         $this->client = new Client($options);
     }
 
