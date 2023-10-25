@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace BEdita\Chatlas\Test\TestCase\Index;
+namespace BEdita\Brevia\Test\TestCase\Index;
 
-use BEdita\Chatlas\Index\CollectionHandler;
-use BEdita\Chatlas\Test\TestMockTrait;
+use BEdita\Brevia\Index\CollectionHandler;
+use BEdita\Brevia\Test\TestMockTrait;
 use BEdita\Core\Filesystem\FilesystemRegistry;
 use BEdita\Core\Model\Entity\AsyncJob;
 use BEdita\Core\Model\Entity\ObjectEntity;
@@ -12,7 +12,7 @@ use BEdita\Core\Model\Entity\Stream;
 use Cake\TestSuite\TestCase;
 
 /**
- * @coversDefaultClass \BEdita\Chatlas\Index\CollectionHandler
+ * @coversDefaultClass \BEdita\Brevia\Index\CollectionHandler
  */
 class CollectionHandlerTest extends TestCase
 {
@@ -24,7 +24,7 @@ class CollectionHandlerTest extends TestCase
      * @return void
      * @covers ::createCollection()
      * @covers ::__construct()
-     * @covers ::chatlasCollection()
+     * @covers ::breviaCollection()
      */
     public function testCreateCollection(): void
     {

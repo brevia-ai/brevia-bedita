@@ -1,6 +1,6 @@
 {
-    "name": "bedita/chatlas",
-    "description": "Chatlas plugin for BEdita",
+    "name": "brevia-ai/brevia-bedita",
+    "description": "Brevia plugin for BEdita",
     "type": "cakephp-plugin",
     "license": "proprietary",
     "authors": [
@@ -24,12 +24,12 @@
     },
     "autoload": {
         "psr-4": {
-            "BEdita\\Chatlas\\": "src/"
+            "BEdita\\Brevia\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "BEdita\\Chatlas\\Test\\": "tests/",
+            "BEdita\\Brevia\\Test\\": "tests/",
             "Cake\\Test\\": "vendor/cakephp/cakephp/tests/"
         }
     },

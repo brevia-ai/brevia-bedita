@@ -2,14 +2,14 @@
 declare(strict_types=1);
 
 /**
- * Chatlas BEdita plugin
+ * BEdita Brevia plugin
  *
  * Copyright 2023 Atlas Srl
  */
-namespace BEdita\Chatlas\Command;
+namespace BEdita\Brevia\Command;
 
-use BEdita\Chatlas\Client\ChatlasClient;
-use BEdita\Chatlas\Utility\ReadCSVTrait;
+use BEdita\Brevia\Client\BreviaClient;
+use BEdita\Brevia\Utility\ReadCSVTrait;
 use BEdita\Core\Utility\LoggedUser;
 use Cake\Command\Command;
 use Cake\Console\Arguments;
@@ -29,11 +29,11 @@ class ImportCsvCommand extends Command
     use ReadCSVTrait;
 
     /**
-     * Chatlas API client
+     * Brevia API client
      *
-     * @var \BEdita\Chatlas\Client\ChatlasClient
+     * @var \BEdita\Brevia\Client\BreviaClient
      */
-    protected ChatlasClient $chatlas;
+    protected BreviaClient $client;
 
     /**
      * @inheritDoc
@@ -69,7 +69,7 @@ class ImportCsvCommand extends Command
      */
     public function initialize(): void
     {
-        $this->chatlas = new ChatlasClient();
+        $this->client = new BreviaClient();
     }
 
     /**
@@ -83,7 +83,7 @@ class ImportCsvCommand extends Command
         }
 
         $name = $args->getOption('collection');
-        $response = $this->chatlas->get('/collections', compact('name'));
+        $response = $this->client->get('/collections', compact('name'));
         $collectionId = Hash::get($response->getJson(), '0.cmetadata.id');
         if (empty($collectionId)) {
             $io->abort(sprintf('Collection not found: %s', $name));

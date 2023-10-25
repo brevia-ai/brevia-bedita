@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace BEdita\Chatlas\Test;
+namespace BEdita\Brevia\Test;
 
 use BEdita\Core\Model\Entity\ObjectEntity;
 use BEdita\Core\Model\Entity\ObjectType;
@@ -24,9 +24,9 @@ trait TestMockTrait
     protected function mockClientResponse(string $body = '', int $status = 200): void
     {
         // init config if not set
-        if (!Configure::check('Chatlas.apiUrl')) {
-            Configure::write('Chatlas', [
-                'apiUrl' => 'https://api.chatlasapp.com',
+        if (!Configure::check('Brevia.apiUrl')) {
+            Configure::write('Brevia', [
+                'apiUrl' => 'https://api.breviaapp.com',
                 'token' => 'test-token',
             ]);
         }
@@ -40,7 +40,7 @@ trait TestMockTrait
             ->method('send')
             ->will($this->returnValue([$response]));
 
-        Configure::write('Chatlas.adapter', $mock);
+        Configure::write('Brevia.adapter', $mock);
     }
 
     /**

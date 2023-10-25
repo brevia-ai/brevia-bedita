@@ -2,13 +2,13 @@
 declare(strict_types=1);
 
 /**
- * Chatlas BEdita plugin
+ * BEdita Brevia plugin
  *
  * Copyright 2023 Atlas Srl
  */
-namespace BEdita\Chatlas\Index;
+namespace BEdita\Brevia\Index;
 
-use BEdita\Chatlas\Client\ChatlasClient;
+use BEdita\Brevia\Client\BreviaClient;
 use BEdita\Core\Filesystem\FilesystemRegistry;
 use BEdita\Core\Model\Entity\AsyncJob;
 use BEdita\Core\Model\Entity\ObjectEntity;
@@ -19,7 +19,7 @@ use Cake\Utility\Hash;
 use Laminas\Diactoros\UploadedFile;
 
 /**
- * Handle Chatlas collection via API.
+ * Handle Brevia collection via API.
  */
 class CollectionHandler
 {
@@ -27,14 +27,14 @@ class CollectionHandler
     use LogTrait;
 
     /**
-     * Chatlas API client
+     * Brevia API client
      *
-     * @var \BEdita\Chatlas\Client\ChatlasClient
+     * @var \BEdita\Brevia\Client\BreviaClient
      */
-    protected ChatlasClient $chatlas;
+    protected BreviaClient $client;
 
     /**
-     * List of properties to exclude when saving Chatlas collection metadata
+     * List of properties to exclude when saving Brevia collection metadata
      *
      * @var array
      */
@@ -53,7 +53,7 @@ class CollectionHandler
     ];
 
     /**
-     * List of properties to check when updating a Chatlas collection index
+     * List of properties to check when updating a Brevia collection index
      *
      * @var array
      */
@@ -68,11 +68,11 @@ class CollectionHandler
      */
     public function __construct()
     {
-        $this->chatlas = new ChatlasClient();
+        $this->client = new BreviaClient();
     }
 
     /**
-     * Create Chatlas collection
+     * Create Brevia collection
      *
      * @param \BEdita\Core\Model\Entity\ObjectEntity $collection Collection entity
      * @return void
@@ -82,14 +82,14 @@ class CollectionHandler
         $msg = sprintf('Creating collection "%s"', $collection->get('title'));
         $this->log($msg, 'info');
 
-        $response = $this->chatlas->post('/collections', $this->chatlasCollection($collection));
+        $response = $this->client->post('/collections', $this->breviaCollection($collection));
         $collection->set('collection_uuid', Hash::get($response->getJson(), 'uuid'));
         $collection->set('collection_updated', date('c'));
         $collection->getTable()->saveOrFail($collection, ['_skipAfterSave' => true]);
     }
 
     /**
-     * Update Chatlas collection
+     * Update Brevia collection
      *
      * @param \BEdita\Core\Model\Entity\ObjectEntity $collection Collection entity
      * @return void
@@ -99,18 +99,18 @@ class CollectionHandler
         $msg = sprintf('Updating collection "%s"', $collection->get('title'));
         $this->log($msg, 'info');
         $path = sprintf('/collections/%s', $collection->get('collection_uuid'));
-        $this->chatlas->patch($path, $this->chatlasCollection($collection));
+        $this->client->patch($path, $this->breviaCollection($collection));
         $collection->set('collection_updated', date('c'));
         $collection->getTable()->saveOrFail($collection, ['_skipAfterSave' => true]);
     }
 
     /**
-     * Fetch Chatlas collection fields
+     * Fetch Brevia collection fields
      *
      * @param \BEdita\Core\Model\Entity\ObjectEntity $collection Collection entity
      * @return array
      */
-    protected function chatlasCollection(ObjectEntity $collection): array
+    protected function breviaCollection(ObjectEntity $collection): array
     {
         $fields = array_diff_key(
             $collection->toArray(),
@@ -124,7 +124,7 @@ class CollectionHandler
     }
 
     /**
-     * Remove Chatlas collection
+     * Remove Brevia collection
      *
      * @param \BEdita\Core\Model\Entity\ObjectEntity $collection Collection entity
      * @return void
@@ -134,7 +134,7 @@ class CollectionHandler
         $msg = sprintf('Removing collection "%s"', $collection->get('title'));
         $this->log($msg, 'info');
         $path = sprintf('/collections/%s', $collection->get('collection_uuid'));
-        $this->chatlas->delete($path);
+        $this->client->delete($path);
         $collection->set('collection_uuid', null);
     }
 
@@ -166,7 +166,7 @@ class CollectionHandler
             'document_id' => $entity->get('id'),
             'metadata' => ['type' => $entity->get('type')],
         ];
-        $this->chatlas->post('/index', $body);
+        $this->client->post('/index', $body);
         $entity->set('index_updated', date('c'));
         $entity->set('index_status', 'done');
         $entity->getTable()->saveOrFail($entity, ['_skipAfterSave' => true]);
@@ -207,7 +207,7 @@ class CollectionHandler
                 'file' => $stream->file_name,
             ]),
         ]);
-        $this->chatlas->postMultipart(
+        $this->client->postMultipart(
             '/index/upload',
             $form
         );
@@ -226,7 +226,7 @@ class CollectionHandler
     protected function uploadDocumentJob(ObjectEntity $collection, ObjectEntity $entity): void
     {
         $asyncJob = new AsyncJob([
-            'service' => 'BEdita/Chatlas.IndexFile',
+            'service' => 'BEdita/Brevia.IndexFile',
             'max_attempts' => 3,
             'priority' => 5,
             'payload' => [
@@ -308,7 +308,7 @@ class CollectionHandler
     {
         $this->log($this->logMessage('Remove', $collection, $entity), 'info');
         $path = sprintf('/index/%s/%s', $collection->get('collection_uuid'), $entity->get('id'));
-        $this->chatlas->delete($path);
+        $this->client->delete($path);
         $entity->set('index_status', null);
         $entity->set('index_updated', null);
         $entity->getTable()->saveOrFail($entity, ['_skipAfterSave' => true]);

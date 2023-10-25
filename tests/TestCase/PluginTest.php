@@ -1,15 +1,15 @@
 <?php
 declare(strict_types=1);
 
-namespace BEdita\Chatlas\Test\TestCase;
+namespace BEdita\Brevia\Test\TestCase;
 
-use BEdita\Chatlas\Plugin;
+use BEdita\Brevia\Plugin;
 use Cake\Core\Configure;
 use Cake\Core\PluginApplicationInterface;
 use Cake\TestSuite\TestCase;
 
 /**
- * @coversDefaultClass \BEdita\Chatlas\Plugin
+ * @coversDefaultClass \BEdita\Brevia\Plugin
  */
 class PluginTest extends TestCase
 {

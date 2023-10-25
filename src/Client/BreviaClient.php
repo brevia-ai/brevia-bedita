@@ -2,11 +2,11 @@
 declare(strict_types=1);
 
 /**
- * Chatlas BEdita plugin
+ * BEdita Brevia plugin
  *
  * Copyright 2023 Atlas Srl
  */
-namespace BEdita\Chatlas\Client;
+namespace BEdita\Brevia\Client;
 
 use Cake\Core\Configure;
 use Cake\Http\Client;
@@ -17,9 +17,9 @@ use Cake\Log\LogTrait;
 use Throwable;
 
 /**
- * Chatlas API Client.
+ * Brevia API Client.
  */
-class ChatlasClient
+class BreviaClient
 {
     use LogTrait;
 
@@ -44,22 +44,22 @@ class ChatlasClient
     }
 
     /**
-     * Initialize client from `Chatlas` configuration key
+     * Initialize client from `Brevia` configuration key
      *
      * @return void
      */
     public function initialize(): void
     {
-        $options = parse_url((string)Configure::read('Chatlas.apiUrl')) + array_filter([
+        $options = parse_url((string)Configure::read('Brevia.apiUrl')) + array_filter([
             'headers' => [
                 'Accept' => 'application/json',
             ],
-            'timeout' => Configure::read('Chatlas.timeout'),
-            'adapter' => Configure::read('Chatlas.adapter'),
+            'timeout' => Configure::read('Brevia.timeout'),
+            'adapter' => Configure::read('Brevia.adapter'),
         ]);
-        if (Configure::check('Chatlas.token')) {
+        if (Configure::check('Brevia.token')) {
             $options['headers'] += [
-                'Authorization' => sprintf('Bearer %s', (string)Configure::read('Chatlas.token')),
+                'Authorization' => sprintf('Bearer %s', (string)Configure::read('Brevia.token')),
             ];
         }
 
@@ -67,7 +67,7 @@ class ChatlasClient
     }
 
     /**
-     * Proxy for GET requests to Chatlas API
+     * Proxy for GET requests to Brevia API
      *
      * @param string $path The path for API request
      * @param array $query The query params
@@ -82,7 +82,7 @@ class ChatlasClient
     }
 
     /**
-     * Proxy for POST requests to Chatlas API
+     * Proxy for POST requests to Brevia API
      *
      * @param string $path The path for API request
      * @param array $body The body data
@@ -97,7 +97,7 @@ class ChatlasClient
     }
 
     /**
-     * Proxy for POST multipart/form requests to Chatlas API
+     * Proxy for POST multipart/form requests to Brevia API
      *
      * @param string $path The path for API request
      * @param \Cake\Http\Client\FormData $form The form data
@@ -113,7 +113,7 @@ class ChatlasClient
     }
 
     /**
-     * Proxy for PATCH requests to Chatlas API
+     * Proxy for PATCH requests to Brevia API
      *
      * @param string $path The path for API request
      * @param array $body The body data
@@ -128,7 +128,7 @@ class ChatlasClient
     }
 
     /**
-     * Proxy for DELETE requests to Chatlas API
+     * Proxy for DELETE requests to Brevia API
      *
      * @param string $path The path for API request
      * @param array $body The body data
@@ -219,7 +219,7 @@ class ChatlasClient
     }
 
     /**
-     * Handle Chatlas API error: log and throw exception
+     * Handle Brevia API error: log and throw exception
      *
      * @param int $code Error code
      * @param string $message Error message
@@ -231,7 +231,7 @@ class ChatlasClient
         if ($code < 100 || $code > 599) {
             $code = 500;
         }
-        $msg = sprintf('Chatlas API error: %s', $message);
+        $msg = sprintf('Brevia API error: %s', $message);
         $this->log(sprintf('[%d] %s', $code, $msg), 'error');
         throw new HttpException($msg, $code);
     }

@@ -2,14 +2,14 @@
 declare(strict_types=1);
 
 /**
- * Chatlas BEdita plugin
+ * BEdita Brevia plugin
  *
  * Copyright 2023 Atlas Srl
  */
-namespace BEdita\Chatlas\Event;
+namespace BEdita\Brevia\Event;
 
 use ArrayObject;
-use BEdita\Chatlas\Index\CollectionHandler;
+use BEdita\Brevia\Index\CollectionHandler;
 use BEdita\Core\Model\Entity\ObjectEntity;
 use BEdita\Core\ORM\Association\RelatedTo;
 use Cake\Datasource\EntityInterface;
@@ -20,9 +20,9 @@ use Cake\ORM\Locator\LocatorAwareTrait;
 use Cake\Utility\Hash;
 
 /**
- * Event listener for chatlas collection related events.
+ * Event listener for brevia collection related events.
  */
-class ChatlasEventHandler implements EventListenerInterface
+class BreviaEventHandler implements EventListenerInterface
 {
     use LocatorAwareTrait;
 

@@ -2,22 +2,22 @@
 declare(strict_types=1);
 
 /**
- * Chatlas BEdita plugin
+ * BEdita Brevia plugin
  *
  * Copyright 2023 Atlas Srl
  */
-namespace BEdita\Chatlas\Test\TestCase\Command;
+namespace BEdita\Brevia\Test\TestCase\Command;
 
-use BEdita\Chatlas\Test\TestMockTrait;
+use BEdita\Brevia\Test\TestMockTrait;
 use BEdita\Core\Model\Entity\ObjectEntity;
 use Cake\Console\TestSuite\ConsoleIntegrationTestTrait;
 use Cake\Routing\Router;
 use Cake\TestSuite\TestCase;
 
 /**
- * {@see \BEdita\Chatlas\Command\ImportCsvCommand} Test Case
+ * {@see \BEdita\Brevia\Command\ImportCsvCommand} Test Case
  *
- * @coversDefaultClass \BEdita\Chatlas\Command\ImportCsvCommand
+ * @coversDefaultClass \BEdita\Brevia\Command\ImportCsvCommand
  */
 class ImportCsvCommandTest extends TestCase
 {

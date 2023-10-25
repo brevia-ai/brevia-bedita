@@ -2,13 +2,13 @@
 declare(strict_types=1);
 
 /**
- * Test suite bootstrap for Chatlas.
+ * Test suite bootstrap for Brevia.
  *
  * This function is used to find the location of CakePHP whether CakePHP
  * has been installed as a dependency of the plugin, or the plugin is itself
  * installed as a dependency of an application.
  */
-use BEdita\Chatlas\Test\TestApp\Application;
+use BEdita\Brevia\Test\TestApp\Application;
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
 use Cake\Datasource\ConnectionManager;
@@ -46,7 +46,7 @@ define('CORE_PATH', CAKE_CORE_INCLUDE_PATH . DS);
 Configure::write('debug', true);
 
 Configure::write('App', [
-    'namespace' => 'BEdita\Chatlas\Test\TestApp',
+    'namespace' => 'BEdita\Brevia\Test\TestApp',
     'encoding' => 'utf-8',
     'paths' => [
         'plugins' => [ROOT . 'Plugin' . DS],

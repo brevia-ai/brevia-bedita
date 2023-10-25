@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace BEdita\Chatlas\Test\TestApp;
+namespace BEdita\Brevia\Test\TestApp;
 
 use Cake\Http\BaseApplication;
 use Cake\Http\MiddlewareQueue;
@@ -19,7 +19,7 @@ class Application extends BaseApplication
      */
     public function bootstrap(): void
     {
-        $this->addPlugin('BEdita/Chatlas', ['path' => dirname(dirname(__DIR__)) . DS]);
+        $this->addPlugin('BEdita/Brevia', ['path' => dirname(dirname(__DIR__)) . DS]);
     }
 
     /**

@@ -1,19 +1,19 @@
 <?php
 declare(strict_types=1);
 
-namespace BEdita\Chatlas\Test\TestCase\Client;
+namespace BEdita\Brevia\Test\TestCase\Client;
 
-use BEdita\Chatlas\Client\ChatlasClient;
-use BEdita\Chatlas\Test\TestMockTrait;
+use BEdita\Brevia\Client\BreviaClient;
+use BEdita\Brevia\Test\TestMockTrait;
 use Cake\Core\Configure;
 use Cake\Http\Client\FormData;
 use Cake\Http\Exception\HttpException;
 use Cake\TestSuite\TestCase;
 
 /**
- * @coversDefaultClass \BEdita\Chatlas\Client\ChatlasClient
+ * @coversDefaultClass \BEdita\Brevia\Client\BreviaClient
  */
-class ChatlasClientTest extends TestCase
+class BreviaClientTest extends TestCase
 {
     use TestMockTrait;
 
@@ -27,8 +27,8 @@ class ChatlasClientTest extends TestCase
     public function testConstruct(): void
     {
         $this->mockClientResponse();
-        $chatlasClient = new ChatlasClient();
-        $response = $chatlasClient->get();
+        $breviaClient = new BreviaClient();
+        $response = $breviaClient->get();
         static::assertEquals(200, $response->getStatusCode());
     }
 
@@ -44,8 +44,8 @@ class ChatlasClientTest extends TestCase
     {
         $expected = ['test' => 'get response'];
         $this->mockClientResponse(json_encode($expected));
-        $chatlasClient = new ChatlasClient();
-        $response = $chatlasClient->get('/test');
+        $breviaClient = new BreviaClient();
+        $response = $breviaClient->get('/test');
         static::assertEquals($expected, $response->getJson());
         static::assertEquals(200, $response->getStatusCode());
     }
@@ -62,8 +62,8 @@ class ChatlasClientTest extends TestCase
     {
         $expected = ['test' => 'post response'];
         $this->mockClientResponse(json_encode($expected));
-        $chatlasClient = new ChatlasClient();
-        $response = $chatlasClient->post('/test', ['input' => 'data']);
+        $breviaClient = new BreviaClient();
+        $response = $breviaClient->post('/test', ['input' => 'data']);
         static::assertEquals($expected, $response->getJson());
         static::assertEquals(200, $response->getStatusCode());
     }
@@ -78,8 +78,8 @@ class ChatlasClientTest extends TestCase
     {
         $expected = ['test' => 'post multipart response'];
         $this->mockClientResponse(json_encode($expected));
-        $chatlasClient = new ChatlasClient();
-        $response = $chatlasClient->postMultipart('/test', new FormData());
+        $breviaClient = new BreviaClient();
+        $response = $breviaClient->postMultipart('/test', new FormData());
         static::assertEquals($expected, $response->getJson());
         static::assertEquals(200, $response->getStatusCode());
     }
@@ -96,8 +96,8 @@ class ChatlasClientTest extends TestCase
     {
         $expected = ['test' => 'patch response'];
         $this->mockClientResponse(json_encode($expected));
-        $chatlasClient = new ChatlasClient();
-        $response = $chatlasClient->patch('/test');
+        $breviaClient = new BreviaClient();
+        $response = $breviaClient->patch('/test');
         static::assertEquals($expected, $response->getJson());
         static::assertEquals(200, $response->getStatusCode());
     }
@@ -113,8 +113,8 @@ class ChatlasClientTest extends TestCase
     public function testDelete(): void
     {
         $this->mockClientResponse();
-        $chatlasClient = new ChatlasClient();
-        $response = $chatlasClient->delete('/test');
+        $breviaClient = new BreviaClient();
+        $response = $breviaClient->delete('/test');
         static::assertEquals(200, $response->getStatusCode());
     }
 
@@ -128,11 +128,11 @@ class ChatlasClientTest extends TestCase
     public function testHandleError(): void
     {
         $this->expectException(HttpException::class);
-        $this->expectExceptionMessage('Chatlas API error: ');
+        $this->expectExceptionMessage('Brevia API error: ');
         $this->expectExceptionCode(500);
         $this->mockClientResponse('', 500);
-        $chatlasClient = new ChatlasClient();
-        $chatlasClient->delete('/test');
+        $breviaClient = new BreviaClient();
+        $breviaClient->delete('/test');
     }
 
     /**
@@ -145,10 +145,10 @@ class ChatlasClientTest extends TestCase
     public function testHandleErrorUrl(): void
     {
         $this->expectException(HttpException::class);
-        $this->expectExceptionMessage('Chatlas API error: The source URI string appears to be malformed');
+        $this->expectExceptionMessage('Brevia API error: The source URI string appears to be malformed');
         $this->expectExceptionCode(500);
-        Configure::write('Chatlas.apiUrl', 'bad url');
-        $chatlasClient = new ChatlasClient();
-        $chatlasClient->get('/test');
+        Configure::write('Brevia.apiUrl', 'bad url');
+        $breviaClient = new BreviaClient();
+        $breviaClient->get('/test');
     }
 }

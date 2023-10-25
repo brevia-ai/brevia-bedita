@@ -2,13 +2,13 @@
 declare(strict_types=1);
 
 /**
- * Chatlas BEdita plugin
+ * BEdita Brevia plugin
  *
  * Copyright 2023 Atlas Srl
  */
-namespace BEdita\Chatlas\Job\Service;
+namespace BEdita\Brevia\Job\Service;
 
-use BEdita\Chatlas\Index\CollectionHandler;
+use BEdita\Brevia\Index\CollectionHandler;
 use BEdita\Core\Job\JobService;
 use Cake\Log\LogTrait;
 use Cake\ORM\Locator\LocatorAwareTrait;

@@ -2,19 +2,19 @@
 declare(strict_types=1);
 
 /**
- * Chatlas BEdita plugin
+ * BEdita Brevia plugin
  *
  * Copyright 2023 Atlas Srl
  */
-namespace BEdita\Chatlas;
+namespace BEdita\Brevia;
 
-use BEdita\Chatlas\Event\ChatlasEventHandler;
+use BEdita\Brevia\Event\BreviaEventHandler;
 use Cake\Core\BasePlugin;
 use Cake\Core\PluginApplicationInterface;
 use Cake\Event\EventManager;
 
 /**
- * Plugin for BEdita Chatlas
+ * Plugin for BEdita Brevia
  */
 class Plugin extends BasePlugin
 {
@@ -24,6 +24,6 @@ class Plugin extends BasePlugin
     public function bootstrap(PluginApplicationInterface $app): void
     {
         parent::bootstrap($app);
-        EventManager::instance()->on(new ChatlasEventHandler());
+        EventManager::instance()->on(new BreviaEventHandler());
     }
 }

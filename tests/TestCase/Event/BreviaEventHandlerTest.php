@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
 
-namespace BEdita\Chatlas\Test\TestCase\Event;
+namespace BEdita\Brevia\Test\TestCase\Event;
 
 use ArrayObject;
-use BEdita\Chatlas\Event\ChatlasEventHandler;
-use BEdita\Chatlas\Test\TestMockTrait;
+use BEdita\Brevia\Event\BreviaEventHandler;
+use BEdita\Brevia\Test\TestMockTrait;
 use BEdita\Core\Model\Entity\ObjectEntity;
 use BEdita\Core\ORM\Association\RelatedTo;
 use Cake\Event\Event;
@@ -14,9 +14,9 @@ use Cake\TestSuite\TestCase;
 use Cake\Utility\Hash;
 
 /**
- * @coversDefaultClass \BEdita\Chatlas\Event\ChatlasEventHandler
+ * @coversDefaultClass \BEdita\Brevia\Event\BreviaEventHandler
  */
-class ChatlasEventHandlerTest extends TestCase
+class BreviaEventHandlerTest extends TestCase
 {
     use TestMockTrait;
 
@@ -33,7 +33,7 @@ class ChatlasEventHandlerTest extends TestCase
             'Model.afterSave' => 'afterSave',
             'Associated.afterSave' => 'afterSaveAssociated',
         ];
-        $evtHandler = new ChatlasEventHandler();
+        $evtHandler = new BreviaEventHandler();
         static::assertSame($expected, $evtHandler->implementedEvents());
     }
 
@@ -108,7 +108,7 @@ class ChatlasEventHandlerTest extends TestCase
         if (!empty($options['response'])) {
             $this->mockClientResponse($options['response']['body']);
         }
-        $handler = new ChatlasEventHandler();
+        $handler = new BreviaEventHandler();
         $event = new Event('test');
         $handler->afterSave($event, $entity, new ArrayObject($options));
         foreach ($options['expect'] as $key => $value) {
@@ -202,7 +202,7 @@ class ChatlasEventHandlerTest extends TestCase
         if (!empty($options['call'])) {
             $this->mockClientResponse();
         }
-        $handler = new ChatlasEventHandler();
+        $handler = new BreviaEventHandler();
         $event = new Event('test', null, $data);
         $handler->afterSaveAssociated($event);
         foreach ($options['expect'] as $key => $value) {
@@ -247,7 +247,7 @@ class ChatlasEventHandlerTest extends TestCase
             $this->mockClientResponse();
         }
         $entity->set('collection_uuid', '1234567');
-        $evtHandler = new ChatlasEventHandler();
+        $evtHandler = new BreviaEventHandler();
         $evtHandler->afterDelete(new Event('test'), $entity);
         if ($deleted) {
             static::assertNull($entity->get('collection_uuid'));

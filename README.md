@@ -1,10 +1,10 @@
-# BEdita/Chatlas plugin for BEdita
-[![Github Actions](https://github.com/atlasconsulting/bedita-chatlas/workflows/php/badge.svg)](https://github.com/atlasconsulting/bedita-chatlas/actions?query=workflow%3Aphp)
-[![codecov](https://codecov.io/gh/atlasconsulting/bedita-chatlas/branch/main/graph/badge.svg)](https://codecov.io/gh/atlasconsulting/bedita-chatlas)
+# Brevia plugin for BEdita
+[![Github Actions](https://github.com/brevia-ai/brevia-bedita/workflows/php/badge.svg)](https://github.com/brevia-ai/brevia-bedita/actions?query=workflow%3Aphp)
+[![codecov](https://codecov.io/gh/brevia-ai/brevia-bedita/branch/main/graph/badge.svg)](https://codecov.io/gh/brevia-ai/brevia-bedita)
 [![phpstan](https://img.shields.io/badge/PHPStan-level%205-brightgreen.svg)](https://phpstan.org)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/atlasconsulting/bedita-chatlas/badges/quality-score.png?b=main)](https://scrutinizer-ci.com/g/atlasconsulting/bedita-chatlas/?branch=main)
-[![image](https://img.shields.io/packagist/v/bedita/chatlas.svg?label=stable)](https://packagist.org/packages/bedita/chatlas)
-[![image](https://img.shields.io/github/license/atlasconsulting/bedita-chatlas.svg)](https://github.com/atlasconsulting/bedita-chatlas/blob/main/LICENSE.LGPL)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/brevia-ai/brevia-bedita/badges/quality-score.png?b=main)](https://scrutinizer-ci.com/g/brevia-ai/brevia-bedita/?branch=main)
+[![image](https://img.shields.io/packagist/v/brevia-ai/brevia-bedita.svg?label=stable)](https://packagist.org/packages/brevia-ai/brevia-bedita)
+[![image](https://img.shields.io/github/license/brevia-ai/brevia-bedita.svg)](https://github.com/brevia-ai/brevia-bedita/blob/main/LICENSE.LGPL)
 
 ## Installation
 
@@ -19,5 +19,5 @@ You can install this plugin into your CakePHP application using [composer](http:
 The recommended way to install composer packages is:
 
 ```bash
-composer require bedita/chatlas
+composer require brevia-ai/brevia-bedita
 ```

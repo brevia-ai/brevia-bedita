@@ -2,11 +2,11 @@
 declare(strict_types=1);
 
 /**
- * Chatlas BEdita plugin
+ * BEdita Brevia plugin
  *
  * Copyright 2023 Atlas Srl
  */
-namespace BEdita\Chatlas\Utility;
+namespace BEdita\Brevia\Utility;
 
 /**
  * Add CSV read methods
