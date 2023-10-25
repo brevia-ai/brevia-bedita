@@ -9,7 +9,9 @@ declare(strict_types=1);
 namespace BEdita\Brevia\Utility;
 
 /**
- * Add CSV read methods
+ * Add CSV read methods.
+ *
+ * Tip: we could use https://github.com/bedita/import-tools/blob/main/src/Utility/CsvTrait.php instead
  */
 trait ReadCSVTrait
 {
