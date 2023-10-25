@@ -4,7 +4,7 @@
 [![phpstan](https://img.shields.io/badge/PHPStan-level%205-brightgreen.svg)](https://phpstan.org)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/brevia-ai/brevia-bedita/badges/quality-score.png?b=main)](https://scrutinizer-ci.com/g/brevia-ai/brevia-bedita/?branch=main)
 [![image](https://img.shields.io/packagist/v/brevia-ai/brevia-bedita.svg?label=stable)](https://packagist.org/packages/brevia-ai/brevia-bedita)
-[![image](https://img.shields.io/github/license/brevia-ai/brevia-bedita.svg)](https://github.com/brevia-ai/brevia-bedita/blob/main/LICENSE.LGPL)
+[![image](https://img.shields.io/badge/License-LGPL_v3-orange.svg)](https://github.com/brevia-ai/brevia-bedita/blob/main/LICENSE.LGPL)
 
 ## Installation
 
