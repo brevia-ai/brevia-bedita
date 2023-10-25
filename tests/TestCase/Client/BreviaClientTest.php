@@ -1,17 +1,17 @@
 <?php
 declare(strict_types=1);
 
-namespace BEdita\Brevia\Test\TestCase\Client;
+namespace Brevia\Test\TestCase\Client;
 
-use BEdita\Brevia\Client\BreviaClient;
-use BEdita\Brevia\Test\TestMockTrait;
+use Brevia\Client\BreviaClient;
+use Brevia\Test\TestMockTrait;
 use Cake\Core\Configure;
 use Cake\Http\Client\FormData;
 use Cake\Http\Exception\HttpException;
 use Cake\TestSuite\TestCase;
 
 /**
- * @coversDefaultClass \BEdita\Brevia\Client\BreviaClient
+ * @coversDefaultClass \Brevia\Client\BreviaClient
  */
 class BreviaClientTest extends TestCase
 {

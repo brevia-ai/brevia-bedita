@@ -6,9 +6,9 @@ declare(strict_types=1);
  *
  * Copyright 2023 Atlas Srl
  */
-namespace BEdita\Brevia;
+namespace Brevia;
 
-use BEdita\Brevia\Event\BreviaEventHandler;
+use Brevia\Event\BreviaEventHandler;
 use Cake\Core\BasePlugin;
 use Cake\Core\PluginApplicationInterface;
 use Cake\Event\EventManager;

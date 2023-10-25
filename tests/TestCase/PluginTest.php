@@ -1,15 +1,15 @@
 <?php
 declare(strict_types=1);
 
-namespace BEdita\Brevia\Test\TestCase;
+namespace Brevia\Test\TestCase;
 
-use BEdita\Brevia\Plugin;
+use Brevia\Plugin;
 use Cake\Core\Configure;
 use Cake\Core\PluginApplicationInterface;
 use Cake\TestSuite\TestCase;
 
 /**
- * @coversDefaultClass \BEdita\Brevia\Plugin
+ * @coversDefaultClass \Brevia\Plugin
  */
 class PluginTest extends TestCase
 {

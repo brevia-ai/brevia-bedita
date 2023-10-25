@@ -1,15 +1,15 @@
 <?php
 declare(strict_types=1);
 
-namespace BEdita\Brevia\Test\TestCase\Core\Filter;
+namespace Brevia\Test\TestCase\Core\Filter;
 
-use BEdita\Brevia\Utility\ReadCSVTrait;
+use Brevia\Utility\ReadCSVTrait;
 use Cake\TestSuite\TestCase;
 
 /**
- * {@see \BEdita\Brevia\Utility\ReadCSVTrait} Test Case
+ * {@see \Brevia\Utility\ReadCSVTrait} Test Case
  *
- * @coversDefaultClass \BEdita\Brevia\Utility\ReadCSVTrait
+ * @coversDefaultClass \Brevia\Utility\ReadCSVTrait
  */
 class ReadCSVTraitTest extends TestCase
 {

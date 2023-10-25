@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace BEdita\Brevia\Test\TestApp;
+namespace Brevia\Test\TestApp;
 
 use Cake\Http\BaseApplication;
 use Cake\Http\MiddlewareQueue;

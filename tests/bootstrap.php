@@ -8,7 +8,7 @@ declare(strict_types=1);
  * has been installed as a dependency of the plugin, or the plugin is itself
  * installed as a dependency of an application.
  */
-use BEdita\Brevia\Test\TestApp\Application;
+use Brevia\Test\TestApp\Application;
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
 use Cake\Datasource\ConnectionManager;
@@ -46,7 +46,7 @@ define('CORE_PATH', CAKE_CORE_INCLUDE_PATH . DS);
 Configure::write('debug', true);
 
 Configure::write('App', [
-    'namespace' => 'BEdita\Brevia\Test\TestApp',
+    'namespace' => 'Brevia\Test\TestApp',
     'encoding' => 'utf-8',
     'paths' => [
         'plugins' => [ROOT . 'Plugin' . DS],

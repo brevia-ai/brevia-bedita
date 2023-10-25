@@ -6,7 +6,7 @@ declare(strict_types=1);
  *
  * Copyright 2023 Atlas Srl
  */
-namespace BEdita\Brevia\Client;
+namespace Brevia\Client;
 
 use Cake\Core\Configure;
 use Cake\Http\Client;

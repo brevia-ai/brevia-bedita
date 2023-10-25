@@ -6,18 +6,18 @@ declare(strict_types=1);
  *
  * Copyright 2023 Atlas Srl
  */
-namespace BEdita\Brevia\Test\TestCase\Command;
+namespace Brevia\Test\TestCase\Command;
 
-use BEdita\Brevia\Test\TestMockTrait;
 use BEdita\Core\Model\Entity\ObjectEntity;
+use Brevia\Test\TestMockTrait;
 use Cake\Console\TestSuite\ConsoleIntegrationTestTrait;
 use Cake\Routing\Router;
 use Cake\TestSuite\TestCase;
 
 /**
- * {@see \BEdita\Brevia\Command\ImportCsvCommand} Test Case
+ * {@see \Brevia\Command\ImportCsvCommand} Test Case
  *
- * @coversDefaultClass \BEdita\Brevia\Command\ImportCsvCommand
+ * @coversDefaultClass \Brevia\Command\ImportCsvCommand
  */
 class ImportCsvCommandTest extends TestCase
 {

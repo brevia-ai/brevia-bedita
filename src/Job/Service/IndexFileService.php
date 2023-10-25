@@ -6,10 +6,10 @@ declare(strict_types=1);
  *
  * Copyright 2023 Atlas Srl
  */
-namespace BEdita\Brevia\Job\Service;
+namespace Brevia\Job\Service;
 
-use BEdita\Brevia\Index\CollectionHandler;
 use BEdita\Core\Job\JobService;
+use Brevia\Index\CollectionHandler;
 use Cake\Log\LogTrait;
 use Cake\ORM\Locator\LocatorAwareTrait;
 use Throwable;

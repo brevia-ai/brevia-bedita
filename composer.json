@@ -24,12 +24,12 @@
     },
     "autoload": {
         "psr-4": {
-            "BEdita\\Brevia\\": "src/"
+            "Brevia\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "BEdita\\Brevia\\Test\\": "tests/",
+            "Brevia\\Test\\": "tests/",
             "Cake\\Test\\": "vendor/cakephp/cakephp/tests/"
         }
     },

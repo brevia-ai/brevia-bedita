@@ -1,17 +1,17 @@
 <?php
 declare(strict_types=1);
 
-namespace BEdita\Brevia\Test\TestCase\Job\Service;
+namespace Brevia\Test\TestCase\Job\Service;
 
-use BEdita\Brevia\Job\Service\IndexFileService;
-use BEdita\Brevia\Test\TestMockTrait;
 use BEdita\Core\Filesystem\FilesystemRegistry;
 use BEdita\Core\Model\Entity\ObjectEntity;
 use BEdita\Core\Model\Entity\Stream;
+use Brevia\Job\Service\IndexFileService;
+use Brevia\Test\TestMockTrait;
 use Cake\TestSuite\TestCase;
 
 /**
- * @coversDefaultClass \BEdita\Brevia\Job\Service\IndexFileService
+ * @coversDefaultClass \Brevia\Job\Service\IndexFileService
  */
 class IndexFileServiceTest extends TestCase
 {
