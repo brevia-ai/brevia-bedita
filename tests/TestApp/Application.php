@@ -19,7 +19,7 @@ class Application extends BaseApplication
      */
     public function bootstrap(): void
     {
-        $this->addPlugin('BEdita/Brevia', ['path' => dirname(dirname(__DIR__)) . DS]);
+        $this->addPlugin('Brevia/BEdita', ['path' => dirname(dirname(__DIR__)) . DS]);
     }
 
     /**

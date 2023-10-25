@@ -226,7 +226,7 @@ class CollectionHandler
     protected function uploadDocumentJob(ObjectEntity $collection, ObjectEntity $entity): void
     {
         $asyncJob = new AsyncJob([
-            'service' => 'BEdita/Brevia.IndexFile',
+            'service' => 'Brevia/BEdita.IndexFile',
             'max_attempts' => 3,
             'priority' => 5,
             'payload' => [
