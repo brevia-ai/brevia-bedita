@@ -6,12 +6,12 @@ declare(strict_types=1);
  *
  * Copyright 2023 Atlas Srl
  */
-namespace BEdita\Brevia\Index;
+namespace Brevia\BEdita\Index;
 
-use BEdita\Brevia\Client\BreviaClient;
 use BEdita\Core\Filesystem\FilesystemRegistry;
 use BEdita\Core\Model\Entity\AsyncJob;
 use BEdita\Core\Model\Entity\ObjectEntity;
+use Brevia\BEdita\Client\BreviaClient;
 use Cake\Http\Client\FormData;
 use Cake\Log\LogTrait;
 use Cake\ORM\Locator\LocatorAwareTrait;
@@ -29,7 +29,7 @@ class CollectionHandler
     /**
      * Brevia API client
      *
-     * @var \BEdita\Brevia\Client\BreviaClient
+     * @var \Brevia\BEdita\Client\BreviaClient
      */
     protected BreviaClient $client;
 
@@ -226,7 +226,7 @@ class CollectionHandler
     protected function uploadDocumentJob(ObjectEntity $collection, ObjectEntity $entity): void
     {
         $asyncJob = new AsyncJob([
-            'service' => 'BEdita/Brevia.IndexFile',
+            'service' => 'Brevia/BEdita.IndexFile',
             'max_attempts' => 3,
             'priority' => 5,
             'payload' => [

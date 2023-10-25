@@ -6,11 +6,11 @@ declare(strict_types=1);
  *
  * Copyright 2023 Atlas Srl
  */
-namespace BEdita\Brevia\Command;
+namespace Brevia\BEdita\Command;
 
-use BEdita\Brevia\Client\BreviaClient;
-use BEdita\Brevia\Utility\ReadCSVTrait;
 use BEdita\Core\Utility\LoggedUser;
+use Brevia\BEdita\Client\BreviaClient;
+use Brevia\BEdita\Utility\ReadCSVTrait;
 use Cake\Command\Command;
 use Cake\Console\Arguments;
 use Cake\Console\ConsoleIo;
@@ -31,7 +31,7 @@ class ImportCsvCommand extends Command
     /**
      * Brevia API client
      *
-     * @var \BEdita\Brevia\Client\BreviaClient
+     * @var \Brevia\BEdita\Client\BreviaClient
      */
     protected BreviaClient $client;
 

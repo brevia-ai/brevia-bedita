@@ -11,7 +11,7 @@
   </php>
   <!-- Add any additional test suites you want to run here -->
   <testsuites>
-    <testsuite name="BEdita/Brevia">
+    <testsuite name="Brevia/BEdita">
       <directory>tests/TestCase/</directory>
     </testsuite>
   </testsuites>

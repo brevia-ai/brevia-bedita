@@ -6,7 +6,7 @@ declare(strict_types=1);
  *
  * Copyright 2023 Atlas Srl
  */
-namespace BEdita\Brevia\Utility;
+namespace Brevia\BEdita\Utility;
 
 /**
  * Add CSV read methods.
