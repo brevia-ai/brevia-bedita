@@ -6,12 +6,12 @@ declare(strict_types=1);
  *
  * Copyright 2023 Atlas Srl
  */
-namespace Brevia\Index;
+namespace Brevia\BEdita\Index;
 
 use BEdita\Core\Filesystem\FilesystemRegistry;
 use BEdita\Core\Model\Entity\AsyncJob;
 use BEdita\Core\Model\Entity\ObjectEntity;
-use Brevia\Client\BreviaClient;
+use Brevia\BEdita\Client\BreviaClient;
 use Cake\Http\Client\FormData;
 use Cake\Log\LogTrait;
 use Cake\ORM\Locator\LocatorAwareTrait;
@@ -29,7 +29,7 @@ class CollectionHandler
     /**
      * Brevia API client
      *
-     * @var \Brevia\Client\BreviaClient
+     * @var \Brevia\BEdita\Client\BreviaClient
      */
     protected BreviaClient $client;
 

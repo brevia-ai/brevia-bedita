@@ -1,20 +1,20 @@
 <?php
 declare(strict_types=1);
 
-namespace Brevia\Test\TestCase\Event;
+namespace Brevia\BEdita\Test\TestCase\Event;
 
 use ArrayObject;
 use BEdita\Core\Model\Entity\ObjectEntity;
 use BEdita\Core\ORM\Association\RelatedTo;
-use Brevia\Event\BreviaEventHandler;
-use Brevia\Test\TestMockTrait;
+use Brevia\BEdita\Event\BreviaEventHandler;
+use Brevia\BEdita\Test\TestMockTrait;
 use Cake\Event\Event;
 use Cake\ORM\Entity;
 use Cake\TestSuite\TestCase;
 use Cake\Utility\Hash;
 
 /**
- * @coversDefaultClass \Brevia\Event\BreviaEventHandler
+ * @coversDefaultClass \Brevia\BEdita\Event\BreviaEventHandler
  */
 class BreviaEventHandlerTest extends TestCase
 {

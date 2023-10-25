@@ -6,12 +6,12 @@ declare(strict_types=1);
  *
  * Copyright 2023 Atlas Srl
  */
-namespace Brevia\Event;
+namespace Brevia\BEdita\Event;
 
 use ArrayObject;
 use BEdita\Core\Model\Entity\ObjectEntity;
 use BEdita\Core\ORM\Association\RelatedTo;
-use Brevia\Index\CollectionHandler;
+use Brevia\BEdita\Index\CollectionHandler;
 use Cake\Datasource\EntityInterface;
 use Cake\Event\Event;
 use Cake\Event\EventInterface;

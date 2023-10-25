@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Brevia\Test;
+namespace Brevia\BEdita\Test;
 
 use BEdita\Core\Model\Entity\ObjectEntity;
 use BEdita\Core\Model\Entity\ObjectType;

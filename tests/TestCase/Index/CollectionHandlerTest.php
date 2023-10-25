@@ -1,18 +1,18 @@
 <?php
 declare(strict_types=1);
 
-namespace Brevia\Test\TestCase\Index;
+namespace Brevia\BEdita\Test\TestCase\Index;
 
 use BEdita\Core\Filesystem\FilesystemRegistry;
 use BEdita\Core\Model\Entity\AsyncJob;
 use BEdita\Core\Model\Entity\ObjectEntity;
 use BEdita\Core\Model\Entity\Stream;
-use Brevia\Index\CollectionHandler;
-use Brevia\Test\TestMockTrait;
+use Brevia\BEdita\Index\CollectionHandler;
+use Brevia\BEdita\Test\TestMockTrait;
 use Cake\TestSuite\TestCase;
 
 /**
- * @coversDefaultClass \Brevia\Index\CollectionHandler
+ * @coversDefaultClass \Brevia\BEdita\Index\CollectionHandler
  */
 class CollectionHandlerTest extends TestCase
 {
