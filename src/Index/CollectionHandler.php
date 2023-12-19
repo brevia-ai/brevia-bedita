@@ -43,6 +43,7 @@ class CollectionHandler
         'type',
         'created',
         'modified',
+        'lang',
         'locked',
         'published',
         'created_by',
@@ -163,7 +164,7 @@ class CollectionHandler
         $body = [
             'content' => $content,
             'collection_id' => $collection->get('collection_uuid'),
-            'document_id' => $entity->get('id'),
+            'document_id' => (string)$entity->get('id'),
             'metadata' => ['type' => $entity->get('type')],
         ];
         $this->client->post('/index', $body);
@@ -201,7 +202,7 @@ class CollectionHandler
         $form->addFile('file', $file);
         $form->addMany([
             'collection_id' => $collection->get('collection_uuid'),
-            'document_id' => $entity->get('id'),
+            'document_id' => (string)$entity->get('id'),
             'metadata' => json_encode([
                 'type' => $entity->get('type'),
                 'file' => $stream->file_name,
