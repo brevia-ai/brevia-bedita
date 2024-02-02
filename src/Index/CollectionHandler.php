@@ -12,6 +12,7 @@ use BEdita\Core\Filesystem\FilesystemRegistry;
 use BEdita\Core\Model\Entity\AsyncJob;
 use BEdita\Core\Model\Entity\ObjectEntity;
 use Brevia\BEdita\Client\BreviaClient;
+use Cake\Core\Configure;
 use Cake\Http\Client\FormData;
 use Cake\Log\LogTrait;
 use Cake\ORM\Locator\LocatorAwareTrait;
@@ -200,14 +201,17 @@ class CollectionHandler
             $stream->mime_type,
         );
         $form->addFile('file', $file);
-        $form->addMany([
+        $options = Configure::check('Brevia.fileOptions') ?
+            json_encode(Configure::read('Brevia.fileOptions')) : null;
+        $form->addMany(array_filter([
             'collection_id' => $collection->get('collection_uuid'),
             'document_id' => (string)$entity->get('id'),
             'metadata' => json_encode([
                 'type' => $entity->get('type'),
                 'file' => $stream->file_name,
             ]),
-        ]);
+            'options' => $options,
+        ]));
         $this->client->postMultipart(
             '/index/upload',
             $form
