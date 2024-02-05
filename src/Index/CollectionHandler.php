@@ -51,6 +51,7 @@ class CollectionHandler
         'collection_uuid',
         'collection_updated',
         '_meta',
+        '_joinData',
     ];
 
     /**
@@ -161,11 +162,13 @@ class CollectionHandler
             return;
         }
         $content = sprintf("%s\n%s", (string)$entity->get('title'), strip_tags((string)$entity->get('body')));
+        $defaultMetadata = ['type' => $entity->get('type')];
+        $extra = (array)$entity->get('extra');
         $body = [
             'content' => $content,
             'collection_id' => $collection->get('collection_uuid'),
             'document_id' => (string)$entity->get('id'),
-            'metadata' => ['type' => $entity->get('type')],
+            'metadata' => Hash::get($extra, 'brevia.metadata', $defaultMetadata),
         ];
         $this->client->post('/index', $body);
         $entity->set('index_updated', date('c'));
@@ -200,14 +203,19 @@ class CollectionHandler
             $stream->mime_type,
         );
         $form->addFile('file', $file);
-        $form->addMany([
+        // read metadata & options in `extra.brevia` if available
+        $extra = (array)$entity->get('extra');
+        $defaultMetadata = [
+            'type' => $entity->get('type'),
+            'file' => $stream->file_name,
+        ];
+        $options = Hash::get($extra, 'brevia.options');
+        $form->addMany(array_filter([
             'collection_id' => $collection->get('collection_uuid'),
             'document_id' => (string)$entity->get('id'),
-            'metadata' => json_encode([
-                'type' => $entity->get('type'),
-                'file' => $stream->file_name,
-            ]),
-        ]);
+            'metadata' => json_encode(Hash::get($extra, 'brevia.metadata', $defaultMetadata)),
+            'options' => $options ? json_encode($options) : null,
+        ]));
         $this->client->postMultipart(
             '/index/upload',
             $form
