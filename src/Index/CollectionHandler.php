@@ -63,6 +63,7 @@ class CollectionHandler
         'title',
         'description',
         'body',
+        'url',
     ];
 
     /**
@@ -161,16 +162,21 @@ class CollectionHandler
 
             return;
         }
-        $content = sprintf("%s\n%s", (string)$entity->get('title'), strip_tags((string)$entity->get('body')));
         $defaultMetadata = ['type' => $entity->get('type')];
         $extra = (array)$entity->get('extra');
         $body = [
-            'content' => $content,
             'collection_id' => $collection->get('collection_uuid'),
             'document_id' => (string)$entity->get('id'),
             'metadata' => Hash::get($extra, 'brevia.metadata', $defaultMetadata),
         ];
-        $this->client->post('/index', $body);
+        if ($entity->get('type') === 'links') {
+            $body['link'] = (string)$entity->get('url');
+            $body['options'] = Hash::get($extra, 'brevia.options');
+            $this->client->post('/index/link', array_filter($body));
+        } else {
+            $body['content'] = sprintf("%s\n%s", (string)$entity->get('title'), strip_tags((string)$entity->get('body')));
+            $this->client->post('/index', $body);
+        }
         $entity->set('index_updated', date('c'));
         $entity->set('index_status', 'done');
         $entity->getTable()->saveOrFail($entity, ['_skipAfterSave' => true]);
