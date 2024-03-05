@@ -114,6 +114,7 @@ class BreviaEventHandler implements EventListenerInterface
             if ($action === 'remove') {
                 $handler->removeDocument($collection, $document);
             } else {
+                $document = $document->getTable()->get($document->get('id'));
                 $handler->updateDocument($collection, $document, true);
             }
         }
