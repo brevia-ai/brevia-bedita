@@ -52,20 +52,22 @@ trait TestMockTrait
     protected function mockEntity(?string $type = null, array $data = [], array $associations = [])
     {
         $mockTable = $this->getMockBuilder(Table::class)
-            ->onlyMethods(['saveOrFail', 'loadInto', 'hasAssociation'])
+            ->onlyMethods(['saveOrFail', 'loadInto', 'get', 'hasAssociation'])
+            ->getMock();
+        $mockEntity = $this->getMockBuilder(ObjectEntity::class)
+            ->onlyMethods(['toArray', 'getTable'])
             ->getMock();
         $mockTable->method('saveOrFail')
             ->willReturn(new ObjectEntity());
         $mockTable->method('loadInto')
             ->willReturn([]);
+        $mockTable->method('get')
+            ->willReturn($mockEntity);
         $mockTable->method('hasAssociation')
             ->willReturnCallback(function ($assoc) use ($associations) {
                 return in_array($assoc, $associations);
             });
 
-        $mockEntity = $this->getMockBuilder(ObjectEntity::class)
-            ->onlyMethods(['toArray', 'getTable'])
-            ->getMock();
         $mockEntity->method('toArray')
             ->willReturn([]);
         $mockEntity->method('getTable')
