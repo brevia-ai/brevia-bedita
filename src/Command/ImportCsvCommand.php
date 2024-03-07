@@ -51,10 +51,10 @@ class ImportCsvCommand extends Command
                 'required' => true,
             ])
             ->addOption('type', [
-                'help' => 'Type of object to import: documents or questions',
+                'help' => 'Type of object to import: documents, links or questions',
                 'short' => 't',
                 'default' => 'documents',
-                'choices' => ['documents', 'questions'],
+                'choices' => ['documents', 'questions', 'links'],
                 'required' => true,
             ])
             ->addOption('collection', [
