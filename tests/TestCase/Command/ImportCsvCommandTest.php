@@ -44,7 +44,7 @@ class ImportCsvCommandTest extends TestCase
     {
         $this->exec('import_csv --help');
         $this->assertOutputContains('Path of CSV file to import');
-        $this->assertOutputContains('Type of object to import: documents or questions');
+        $this->assertOutputContains('Type of object to import: documents, links');
         $this->assertOutputContains('Collection used to index');
     }
 
