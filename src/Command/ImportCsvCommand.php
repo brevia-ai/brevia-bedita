@@ -96,6 +96,9 @@ class ImportCsvCommand extends Command
         foreach ($this->csvData as $item) {
             $item['status'] = 'on';
             $entity = $Table->newEntity($item);
+            if ($entity->get('extra') && is_string($entity->get('extra'))) {
+                $entity->set('extra', json_decode($entity->get('extra'), true));
+            }
             $entities[] = $Table->saveOrFail($entity);
         }
         /** @phpstan-ignore-next-line */
