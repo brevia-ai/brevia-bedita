@@ -29,10 +29,10 @@ class ReadCSVTraitTest extends TestCase
                 getcwd() . '/tests/files/empty.csv',
             ],
             'import' => [
-                ['Column 1', 'Column 2', 'Column 3'],
+                ['name', 'surname', 'value', 'extra'],
                 [
-                    ['Column 1' => 'Name', 'Column 2' => 'Surname', 'Column 3' => '123,23'],
-                    ['Column 1' => 'Another', 'Column 2' => 'Value', 'Column 3' => '35,99'],
+                    ['name' => 'Name', 'surname' => 'Surname', 'value' => '123,23', 'extra' => '{"key":"value"}'],
+                    ['name' => 'Another', 'surname' => 'Value', 'value' => '35,99', 'extra' => '{"key2":"value2"}'],
                 ],
                 getcwd() . '/tests/files/import.csv',
             ],

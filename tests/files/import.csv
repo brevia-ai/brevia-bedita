@@ -1,4 +1,4 @@
-Column 1,Column 2, Column 3
-Name,Surname, "123,23"
-Another,Value, "35,99"
+name,surname,value,extra
+Name,Surname, "123,23","{""key"":""value""}"
+Another,Value, "35,99","{""key2"":""value2""}"
 Bad Line Ignored
