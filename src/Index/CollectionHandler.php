@@ -172,6 +172,7 @@ class CollectionHandler
         if ($entity->get('type') === 'links') {
             $body['link'] = (string)$entity->get('url');
             $body['options'] = Hash::get($extra, 'brevia.options');
+            $body['metadata']['url'] = $body['link'];
             $this->client->post('/index/link', array_filter($body));
         } else {
             $body['content'] = sprintf("%s\n%s", (string)$entity->get('title'), strip_tags((string)$entity->get('body')));
