@@ -197,7 +197,7 @@ class CollectionHandler
         $path = sprintf('/index/%s/%s', $collection->get('collection_uuid'), $entity->get('id'));
         $response = $this->client->get($path);
 
-        return (array)Hash::get($response->getJson(), '0.cmetadata', $metadata) + $addMeta;
+        return (array)Hash::get((array)$response->getJson(), '0.cmetadata', $metadata) + $addMeta;
     }
 
     /**
