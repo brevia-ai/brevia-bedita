@@ -21,7 +21,7 @@ trait TestMockTrait
      * @param int $status Response status code
      * @return void
      */
-    protected function mockClientResponse(string $body = '', int $status = 200): void
+    protected function mockClientResponse(string $body = '', int $status = 200, int $count = 1): void
     {
         // init config if not set
         if (!Configure::check('Brevia.apiUrl')) {
@@ -36,7 +36,7 @@ trait TestMockTrait
 
         $mock = $this->getMockBuilder(Stream::class)
             ->getMock();
-        $mock->expects($this->once())
+        $mock->expects($this->atMost($count))
             ->method('send')
             ->will($this->returnValue([$response]));
 

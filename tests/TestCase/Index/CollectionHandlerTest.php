@@ -137,7 +137,7 @@ class CollectionHandlerTest extends TestCase
             'streams' => [$stream],
         ]);
         $entity->setNew(false);
-        $this->mockClientResponse();
+        $this->mockClientResponse('', 200, 2);
 
         $handler = new CollectionHandler();
         $collection = new ObjectEntity();
@@ -160,7 +160,7 @@ class CollectionHandlerTest extends TestCase
             'status' => 'on',
         ]);
         $entity->setNew(false);
-        $this->mockClientResponse();
+        $this->mockClientResponse('', 200, 2);
 
         $handler = new CollectionHandler();
         $handler->updateDocument(new ObjectEntity(), $entity);
@@ -202,7 +202,7 @@ class CollectionHandlerTest extends TestCase
         ]);
         $entity->setNew(false);
         $entity->setDirty('status', false);
-        $this->mockClientResponse();
+        $this->mockClientResponse('', 200, 2);
 
         $handler = new CollectionHandler();
         $handler->updateDocument(new ObjectEntity(), $entity);
@@ -244,7 +244,7 @@ class CollectionHandlerTest extends TestCase
         $entity->setNew(false);
         $entity->setDirty('status', false);
         $entity->set('deleted', false, ['guard' => false]);
-        $this->mockClientResponse();
+        $this->mockClientResponse('', 200, 2);
 
         $handler = new CollectionHandler();
         $handler->updateDocument(new ObjectEntity(), $entity);
