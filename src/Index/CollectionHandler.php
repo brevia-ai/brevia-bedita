@@ -146,9 +146,10 @@ class CollectionHandler
      *
      * @param \BEdita\Core\Model\Entity\ObjectEntity $collection Collection entity
      * @param \BEdita\Core\Model\Entity\ObjectEntity $entity Document entity
+     * @param bool $useJob Use async job to upload files
      * @return void
      */
-    protected function addDocument(ObjectEntity $collection, ObjectEntity $entity): void
+    public function addDocument(ObjectEntity $collection, ObjectEntity $entity, bool $useJob = true): void
     {
         if ($entity->get('status') !== 'on' || $entity->get('deleted')) {
             $msg = sprintf('Skipping doc "%s" - ', $entity->get('title')) .
@@ -158,20 +159,22 @@ class CollectionHandler
             return;
         }
         if ($entity->get('type') === 'files') {
-            $this->uploadDocumentJob($collection, $entity);
+            if ($useJob) {
+                $this->uploadDocumentJob($collection, $entity);
+            } else {
+                $this->uploadDocument($collection, $entity);
+            }
 
             return;
         }
-        $defaultMetadata = ['type' => $entity->get('type')];
-        $extra = (array)$entity->get('extra');
         $body = [
             'collection_id' => $collection->get('collection_uuid'),
             'document_id' => (string)$entity->get('id'),
-            'metadata' => Hash::get($extra, 'brevia.metadata', $defaultMetadata),
+            'metadata' => $this->documentMetadata($collection, $entity),
         ];
         if ($entity->get('type') === 'links') {
             $body['link'] = (string)$entity->get('url');
-            $body['options'] = Hash::get($extra, 'brevia.options');
+            $body['options'] = Hash::get((array)$entity->get('extra'), 'brevia.options');
             $body['metadata']['url'] = $body['link'];
             $this->client->post('/index/link', array_filter($body));
         } else {
@@ -181,6 +184,20 @@ class CollectionHandler
         $entity->set('index_updated', date('c'));
         $entity->set('index_status', 'done');
         $entity->getTable()->saveOrFail($entity, ['_skipAfterSave' => true]);
+    }
+
+    /**
+     * Define metadata looking at current metadata and `extra.brevia.metadata`
+     */
+    protected function documentMetadata(ObjectEntity $collection, ObjectEntity $entity, array $addMeta = []): array
+    {
+        $defaultMetadata = ['type' => $entity->get('type')];
+        $metadata = Hash::get((array)$entity->get('extra'), 'brevia.metadata', $defaultMetadata);
+
+        $path = sprintf('/index/%s/%s', $collection->get('collection_uuid'), $entity->get('id'));
+        $response = $this->client->get($path);
+
+        return (array)Hash::get((array)$response->getJson(), '0.cmetadata', $metadata) + $addMeta;
     }
 
     /**
@@ -210,17 +227,13 @@ class CollectionHandler
             $stream->mime_type,
         );
         $form->addFile('file', $file);
-        // read metadata & options in `extra.brevia` if available
-        $extra = (array)$entity->get('extra');
-        $defaultMetadata = [
-            'type' => $entity->get('type'),
-            'file' => $stream->file_name,
-        ];
-        $options = Hash::get($extra, 'brevia.options');
+        // read options in `extra.brevia` if available
+        $options = Hash::get((array)$entity->get('extra'), 'brevia.options');
+        $fileMetadata = ['file' => $stream->file_name];
         $form->addMany(array_filter([
             'collection_id' => $collection->get('collection_uuid'),
             'document_id' => (string)$entity->get('id'),
-            'metadata' => json_encode(Hash::get($extra, 'brevia.metadata', $defaultMetadata)),
+            'metadata' => json_encode($this->documentMetadata($collection, $entity, $fileMetadata)),
             'options' => $options ? json_encode($options) : null,
         ]));
         $this->client->postMultipart(

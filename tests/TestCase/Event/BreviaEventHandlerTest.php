@@ -106,7 +106,7 @@ class BreviaEventHandlerTest extends TestCase
     public function testAfterSave($entity, array $options): void
     {
         if (!empty($options['response'])) {
-            $this->mockClientResponse($options['response']['body']);
+            $this->mockClientResponse($options['response']['body'], 200, 2);
         }
         $handler = new BreviaEventHandler();
         $event = new Event('test');
@@ -200,7 +200,7 @@ class BreviaEventHandlerTest extends TestCase
         $test->set((array)Hash::get($options, 'data'));
 
         if (!empty($options['call'])) {
-            $this->mockClientResponse();
+            $this->mockClientResponse('', 200, 2);
         }
         $handler = new BreviaEventHandler();
         $event = new Event('test', null, $data);

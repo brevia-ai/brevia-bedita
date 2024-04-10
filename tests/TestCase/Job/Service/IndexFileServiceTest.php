@@ -41,7 +41,7 @@ class IndexFileServiceTest extends TestCase
             'status' => 'on',
             'streams' => [$stream],
         ]);
-        $this->mockClientResponse();
+        $this->mockClientResponse('', 200, 2);
         $this->mockTable('Collections', new ObjectEntity());
         $this->mockTable('Files', $file);
 
