@@ -164,6 +164,7 @@ class CollectionHandler
             } else {
                 $this->uploadDocument($collection, $entity);
             }
+
             return;
         }
         $body = [

@@ -17,6 +17,7 @@ use Cake\Console\ConsoleIo;
 use Cake\Console\ConsoleOptionParser;
 use Cake\Log\LogTrait;
 use Cake\Utility\Hash;
+use Exception;
 
 /**
  * Reindex collection contents
@@ -79,7 +80,7 @@ class ReindexCommand extends Command
             $this->log(sprintf('Reindexing [%s] "%s" - id: %s', $doc->get('type'), $doc->get('title'), $doc->id), 'info');
             try {
                 $handler->addDocument($collection, $doc, false);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->log(sprintf('Error reindexing [%s] "%s" - id: %s', $doc->get('type'), $doc->get('title'), $doc->id), 'error');
                 $this->log($e->getMessage(), 'error');
             }
