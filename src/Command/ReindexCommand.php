@@ -79,6 +79,7 @@ class ReindexCommand extends Command
         foreach ($documents as $doc) {
             $this->log(sprintf('Reindexing [%s] "%s" - id: %s', $doc->get('type'), $doc->get('title'), $doc->id), 'info');
             try {
+                $doc = $doc->getTable()->get($doc->id);
                 $handler->addDocument($collection, $doc, false);
             } catch (Exception $e) {
                 $this->log(sprintf('Error reindexing [%s] "%s" - id: %s', $doc->get('type'), $doc->get('title'), $doc->id), 'error');
