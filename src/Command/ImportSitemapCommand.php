@@ -89,6 +89,7 @@ class ImportSitemapCommand extends Command
         }
         $collection = $this->Collections->get($collectionId, ['contain' => ['HasDocuments']]);
         $currentUrls = array_filter(array_map(function ($link) {
+                $link = $link->getTable()->get($link->id);
                 return $link->get('url');
             },
             $collection->has_documents));
@@ -97,7 +98,7 @@ class ImportSitemapCommand extends Command
         $xml = simplexml_load_string($content);
         $json = json_encode($xml);
         $data = (array)json_decode($json, true);
-        $urls = Hash::combine($data, 'url.{n}.loc');
+        $urls = Hash::extract($data, 'url.{n}.loc');
         if (empty($urls)) {
             $io->abort('No URLs found in sitemap');
         }
@@ -108,10 +109,20 @@ class ImportSitemapCommand extends Command
             if (in_array($url, $currentUrls) || ($prefix && strpos($url, $prefix) !== 0)) {
                 continue;
             }
+            $io->info('Adding link: ' . $url);
             $data = [
                 'status' => 'on',
                 'title' => $url,
                 'url' => $url,
+                'extra' => [
+                    'brevia' => [
+                        'metadata' => [
+                            'type' => 'links',
+                            'url' => $url,
+                        ],
+                        'options' => $this->linkOptions($url, (array)$collection->get('link_load_options')),
+                    ],
+                ],
             ];
             $entity = $this->Links->newEntity($data);
             $entities[] = $this->Links->saveOrFail($entity);
@@ -119,8 +130,31 @@ class ImportSitemapCommand extends Command
         /** @phpstan-ignore-next-line */
         $this->Collections->addRelated($collection, 'has_documents', $entities);
 
-        $io->out('Done');
+        $io->out('Done. Link added successfully: ' . count($entities));
 
         return null;
+    }
+
+    /**
+     * Get link options
+     *
+     * @param string $url URL
+     * @param array $linkLoadOptions Link load options
+     * @return array
+     */
+    protected function linkOptions(string $url, array $linkLoadOptions): array
+    {
+        $options = array_filter($linkLoadOptions, function ($o) use ($url) {
+            return $o['url'] === $url;
+        });
+        $selector = Hash::get($options, '0.selector');
+        if (!empty($selector)) {
+            return compact('selector');
+        }
+        $options = array_filter($linkLoadOptions, function ($o) use ($url) {
+            return strpos($url, $o['url']) === 0;
+        });
+
+        return ['selector' => Hash::get($options, '0.selector')];
     }
 }
