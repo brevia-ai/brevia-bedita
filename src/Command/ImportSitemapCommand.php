@@ -36,6 +36,13 @@ class ImportSitemapCommand extends Command
     protected BreviaClient $client;
 
     /**
+     * Links Table
+     *
+     * @var \Cake\ORM\Table
+     */
+    protected $Links;
+
+    /**
      * @inheritDoc
      */
     public $defaultTable = 'Collections';
@@ -68,6 +75,7 @@ class ImportSitemapCommand extends Command
     public function initialize(): void
     {
         $this->client = new BreviaClient();
+        $this->Links = $this->fetchTable('Links');
     }
 
     /**
@@ -93,7 +101,7 @@ class ImportSitemapCommand extends Command
 
                 return $link->get('url');
         },
-            $collection->has_documents));
+            (array)$collection->get('has_documents')));
         $prefix = $args->getOption('prefix');
 
         $xml = simplexml_load_string($content);
@@ -105,7 +113,6 @@ class ImportSitemapCommand extends Command
         }
         $entities = [];
         LoggedUser::setUserAdmin();
-        $this->Links = $this->fetchTable('Links');
         foreach ($urls as $url) {
             if (in_array($url, $currentUrls) || ($prefix && strpos($url, $prefix) !== 0)) {
                 continue;
