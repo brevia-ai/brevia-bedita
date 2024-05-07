@@ -90,8 +90,9 @@ class ImportSitemapCommand extends Command
         $collection = $this->Collections->get($collectionId, ['contain' => ['HasDocuments']]);
         $currentUrls = array_filter(array_map(function ($link) {
                 $link = $link->getTable()->get($link->id);
+
                 return $link->get('url');
-            },
+        },
             $collection->has_documents));
         $prefix = $args->getOption('prefix');
 
