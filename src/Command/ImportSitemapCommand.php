@@ -84,10 +84,10 @@ class ImportSitemapCommand extends Command
     public function execute(Arguments $args, ConsoleIo $io)
     {
         $sitemap = $args->getOption('sitemap');
-        $content = file_get_contents($sitemap);
-        if (!$content) {
-            $io->abort(sprintf('Sitemap content not found: %s', $sitemap));
+        if (!file_exists($sitemap)) {
+            $io->abort(sprintf('File not found: %s', $sitemap));
         }
+        $content = file_get_contents($sitemap);
 
         $name = $args->getOption('collection');
         $response = $this->client->get('/collections', compact('name'));
@@ -114,7 +114,11 @@ class ImportSitemapCommand extends Command
         $entities = [];
         LoggedUser::setUserAdmin();
         foreach ($urls as $url) {
-            if (in_array($url, $currentUrls) || ($prefix && strpos($url, $prefix) !== 0)) {
+            if (
+                in_array($url, $currentUrls) ||
+                in_array(urldecode($url), $currentUrls) ||
+                ($prefix && strpos($url, $prefix) !== 0)
+            ) {
                 continue;
             }
             $io->info('Adding link: ' . $url);
