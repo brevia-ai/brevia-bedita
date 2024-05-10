@@ -140,6 +140,7 @@ class ImportSitemapCommand extends Command
             $entity = $this->Links->newEntity($data);
             $entities[] = $this->Links->saveOrFail($entity);
         }
+        // @phpstan-ignore-next-line
         $this->Collections->addRelated($collection, 'has_documents', $entities);
 
         $io->out('Done. Link added successfully: ' . count($entities));

@@ -101,6 +101,7 @@ class ImportCsvCommand extends Command
             }
             $entities[] = $Table->saveOrFail($entity);
         }
+        /** @phpstan-ignore-next-line */
         $this->Collections->addRelated($collection, 'has_documents', $entities);
 
         $io->out('Done');
