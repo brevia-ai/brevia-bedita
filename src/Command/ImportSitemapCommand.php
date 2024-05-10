@@ -16,6 +16,7 @@ use Cake\Console\Arguments;
 use Cake\Console\ConsoleIo;
 use Cake\Console\ConsoleOptionParser;
 use Cake\Log\LogTrait;
+use Cake\ORM\Table;
 use Cake\Utility\Hash;
 
 /**
@@ -40,7 +41,7 @@ class ImportSitemapCommand extends Command
      *
      * @var \Cake\ORM\Table
      */
-    protected $Links;
+    protected Table $Links;
 
     /**
      * @inheritDoc
@@ -139,7 +140,6 @@ class ImportSitemapCommand extends Command
             $entity = $this->Links->newEntity($data);
             $entities[] = $this->Links->saveOrFail($entity);
         }
-        /** @phpstan-ignore-next-line */
         $this->Collections->addRelated($collection, 'has_documents', $entities);
 
         $io->out('Done. Link added successfully: ' . count($entities));
