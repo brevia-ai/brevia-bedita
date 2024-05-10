@@ -70,7 +70,6 @@ class ImportSitemapCommandTest extends TestCase
         $xmlPath = sprintf('%s/tests/files/empty.csv', getcwd());
         $this->exec(sprintf('import_sitemap --sitemap %s --collection gustavo', $xmlPath));
         $this->assertExitError('No URLs found in sitemap');
-
     }
 
     /**
