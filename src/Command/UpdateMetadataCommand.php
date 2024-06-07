@@ -92,7 +92,6 @@ class UpdateMetadataCommand extends Command
                     'document_id' => (string)$doc->id,
                     'metadata' => $metadata,
                 ]);
-
             } catch (Exception $e) {
                 $this->log(sprintf('Error updating [%s] "%s" - id: %s', $doc->get('type'), $doc->get('title'), $doc->id), 'error');
                 $this->log($e->getMessage(), 'error');
