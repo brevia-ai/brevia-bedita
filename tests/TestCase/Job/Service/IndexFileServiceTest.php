@@ -35,6 +35,7 @@ class IndexFileServiceTest extends TestCase
 
         $stream = new Stream();
         $stream->set('uri', 'default://test.txt', ['guard' => false]);
+        $stream->set('url', '/test.txt', ['guard' => false]);
         $stream->set('file_size', 1, ['guard' => false]);
         $file = $this->mockEntity('files', [
             'index_updated' => null,
