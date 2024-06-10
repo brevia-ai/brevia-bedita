@@ -130,6 +130,7 @@ class CollectionHandlerTest extends TestCase
 
         $stream = new Stream();
         $stream->set('uri', 'default://test.txt', ['guard' => false]);
+        $stream->set('url', '/test.txt', ['guard' => false]);
         $stream->set('file_size', 1, ['guard' => false]);
         $entity = $this->mockEntity('files', [
             'index_updated' => null,

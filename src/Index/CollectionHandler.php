@@ -229,7 +229,7 @@ class CollectionHandler
         $form->addFile('file', $file);
         // read options in `extra.brevia` if available
         $options = Hash::get((array)$entity->get('extra'), 'brevia.options');
-        $fileMetadata = ['file' => $stream->file_name];
+        $fileMetadata = ['file' => $stream->file_name, 'url' => $stream->url];
         $form->addMany(array_filter([
             'collection_id' => $collection->get('collection_uuid'),
             'document_id' => (string)$entity->get('id'),
