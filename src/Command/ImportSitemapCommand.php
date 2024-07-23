@@ -92,9 +92,12 @@ class ImportSitemapCommand extends Command
         $sitemap = $args->getOption('sitemap');
         $content = '';
         if (!empty($sitemap)) {
+            if (strpos($sitemap, 'http://') !== 0 && strpos($sitemap, 'https://') !== 0 && !file_exists($sitemap)) {
+                $io->abort(sprintf('File not found: %s', $sitemap));
+            }
             $content = file_get_contents($sitemap);
             if ($content === false) {
-                $io->abort(sprintf('Error reading sitemap file: %s', $sitemap));
+                $io->abort(sprintf('Error reading sitemap URL: %s', $sitemap));
             }
         }
 
