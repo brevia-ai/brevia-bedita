@@ -63,6 +63,11 @@ class ImportSitemapCommand extends Command
                 'short' => 'p',
                 'required' => false,
             ])
+            ->addOption('black-list', [
+                'help' => 'Path to a black list file containing URLs to exclude - txt file with one URL per line',
+                'short' => 'b',
+                'required' => false,
+            ])
             ->addOption('collection', [
                 'help' => 'Collection used to index (use the unique collection name)',
                 'short' => 'c',
@@ -85,10 +90,13 @@ class ImportSitemapCommand extends Command
     public function execute(Arguments $args, ConsoleIo $io)
     {
         $sitemap = $args->getOption('sitemap');
-        if (!file_exists($sitemap)) {
-            $io->abort(sprintf('File not found: %s', $sitemap));
+        $content = '';
+        if (!empty($sitemap)) {
+            $content = file_get_contents($sitemap);
+            if ($content === false) {
+                $io->abort(sprintf('Error reading sitemap file: %s', $sitemap));
+            }
         }
-        $content = file_get_contents($sitemap);
 
         $name = $args->getOption('collection');
         $response = $this->client->get('/collections', compact('name'));
@@ -104,6 +112,7 @@ class ImportSitemapCommand extends Command
         },
             (array)$collection->get('has_documents')));
         $prefix = $args->getOption('prefix');
+        $blackList = $this->loadBlackList((string)$args->getOption('black-list'));
 
         $xml = simplexml_load_string($content);
         $json = json_encode($xml);
@@ -118,6 +127,7 @@ class ImportSitemapCommand extends Command
             if (
                 in_array($url, $currentUrls) ||
                 in_array(urldecode($url), $currentUrls) ||
+                in_array($url, $blackList) ||
                 ($prefix && strpos($url, $prefix) !== 0)
             ) {
                 continue;
@@ -169,5 +179,24 @@ class ImportSitemapCommand extends Command
         });
 
         return ['selector' => Hash::get($options, '0.selector')];
+    }
+
+    /**
+     * Load black list from file and return as array
+     *
+     * @param string $blackListPath Path to black list file
+     * @param string $collection Collection name
+     * @return array
+     */
+    protected function loadBlackList(string $blackListPath): array
+    {
+        if (empty($blackListPath)) {
+            return [];
+        }
+        if (!file_exists($blackListPath)) {
+            $this->io->abort(sprintf('Blacklist file not found: %s', $blackListPath));
+        }
+
+        return (array)file($blackListPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     }
 }
