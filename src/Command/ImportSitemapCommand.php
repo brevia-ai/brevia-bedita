@@ -112,7 +112,15 @@ class ImportSitemapCommand extends Command
         },
             (array)$collection->get('has_documents')));
         $prefix = $args->getOption('prefix');
-        $blackList = $this->loadBlackList((string)$args->getOption('black-list'));
+
+        $blackListPath = (string)$args->getOption('black-list');
+        $blackList = [];
+        if (!empty($blackListPath)) {
+            if (!file_exists($blackListPath)) {
+                $io->abort(sprintf('Blacklist file not found: %s', $blackListPath));
+            }
+            $blackList = (array)file($blackListPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        }
 
         $xml = simplexml_load_string($content);
         $json = json_encode($xml);
@@ -179,24 +187,5 @@ class ImportSitemapCommand extends Command
         });
 
         return ['selector' => Hash::get($options, '0.selector')];
-    }
-
-    /**
-     * Load black list from file and return as array
-     *
-     * @param string $blackListPath Path to black list file
-     * @param string $collection Collection name
-     * @return array
-     */
-    protected function loadBlackList(string $blackListPath): array
-    {
-        if (empty($blackListPath)) {
-            return [];
-        }
-        if (!file_exists($blackListPath)) {
-            $this->io->abort(sprintf('Blacklist file not found: %s', $blackListPath));
-        }
-
-        return (array)file($blackListPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     }
 }
