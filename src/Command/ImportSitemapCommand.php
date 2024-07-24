@@ -63,6 +63,11 @@ class ImportSitemapCommand extends Command
                 'short' => 'p',
                 'required' => false,
             ])
+            ->addOption('black-list', [
+                'help' => 'Path to a black list file containing URLs to exclude - txt file with one URL per line',
+                'short' => 'b',
+                'required' => false,
+            ])
             ->addOption('collection', [
                 'help' => 'Collection used to index (use the unique collection name)',
                 'short' => 'c',
@@ -85,10 +90,16 @@ class ImportSitemapCommand extends Command
     public function execute(Arguments $args, ConsoleIo $io)
     {
         $sitemap = $args->getOption('sitemap');
-        if (!file_exists($sitemap)) {
-            $io->abort(sprintf('File not found: %s', $sitemap));
+        $content = '';
+        if (!empty($sitemap)) {
+            if (strpos($sitemap, 'http://') !== 0 && strpos($sitemap, 'https://') !== 0 && !file_exists($sitemap)) {
+                $io->abort(sprintf('File not found: %s', $sitemap));
+            }
+            $content = file_get_contents($sitemap);
+            if ($content === false) {
+                $io->abort(sprintf('Error reading sitemap URL: %s', $sitemap));
+            }
         }
-        $content = file_get_contents($sitemap);
 
         $name = $args->getOption('collection');
         $response = $this->client->get('/collections', compact('name'));
@@ -105,6 +116,15 @@ class ImportSitemapCommand extends Command
             (array)$collection->get('has_documents')));
         $prefix = $args->getOption('prefix');
 
+        $blackListPath = (string)$args->getOption('black-list');
+        $blackList = [];
+        if (!empty($blackListPath)) {
+            if (!file_exists($blackListPath)) {
+                $io->abort(sprintf('Blacklist file not found: %s', $blackListPath));
+            }
+            $blackList = (array)file($blackListPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        }
+
         $xml = simplexml_load_string($content);
         $json = json_encode($xml);
         $data = (array)json_decode($json, true);
@@ -118,6 +138,7 @@ class ImportSitemapCommand extends Command
             if (
                 in_array($url, $currentUrls) ||
                 in_array(urldecode($url), $currentUrls) ||
+                in_array($url, $blackList) ||
                 ($prefix && strpos($url, $prefix) !== 0)
             ) {
                 continue;
