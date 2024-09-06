@@ -50,6 +50,14 @@ class ReindexCommand extends Command
                 'help' => 'Collection to reindex (use the unique collection name)',
                 'short' => 'c',
                 'required' => true,
+            ])->addOption('document', [
+                'help' => 'Document to reindex (use the BEdita document ID)',
+                'short' => 'd',
+                'required' => false,
+            ])->addOption('type', [
+                'help' => 'Specific type to reindex',
+                'short' => 't',
+                'required' => false,
             ]);
     }
 
@@ -76,7 +84,12 @@ class ReindexCommand extends Command
         $io->out('Start reindexing collection contents...');
         $documents = (array)$collection->get('has_documents');
         $handler = new CollectionHandler();
+        $docId = (int)$args->getOption('document');
+        $type = $args->getOption('type');
         foreach ($documents as $doc) {
+            if (($docId && $doc->id !== $docId) || ($type && $doc->get('type') !== $type)) {
+                continue;
+            }
             $this->log(sprintf('Reindexing [%s] "%s" - id: %s', $doc->get('type'), $doc->get('title'), $doc->id), 'info');
             try {
                 $doc = $doc->getTable()->get($doc->id);
