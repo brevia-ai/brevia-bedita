@@ -178,17 +178,42 @@ class ImportSitemapCommand extends Command
      */
     protected function linkOptions(string $url, array $linkLoadOptions): array
     {
+        $keys = [];
+        foreach ($linkLoadOptions as $item) {
+            unset($item['url']);
+            $keys = array_merge($keys, array_keys($item));
+        }
+        $keys = array_unique($keys);
+
+        $options = [];
+        foreach ($keys as $key) {
+            $options[$key] = $this->linkLoadOption($url, $key, $linkLoadOptions);
+        }
+
+        return $options;
+    }
+
+    /**
+     * Return option value of $name property
+     *
+     * @param string $url The URL
+     * @param string $name Prop name
+     * @param array $linkLoadOptions Link load options
+     * @return string
+     */
+    protected function linkLoadOption(string $url, string $name, array $linkLoadOptions): string
+    {
         $options = array_filter($linkLoadOptions, function ($o) use ($url) {
             return $o['url'] === $url;
         });
-        $selector = Hash::get($options, '0.selector');
-        if (!empty($selector)) {
-            return compact('selector');
+        $value = Hash::get($options, sprintf('0.%s', $name));
+        if (!empty($value)) {
+            return [$name => $value];
         }
         $options = array_filter($linkLoadOptions, function ($o) use ($url) {
             return strpos($url, $o['url']) === 0;
         });
 
-        return ['selector' => Hash::get($options, '0.selector')];
+        return (string)Hash::get($options, sprintf('0.%s', $name));
     }
 }
