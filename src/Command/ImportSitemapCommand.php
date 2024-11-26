@@ -154,7 +154,6 @@ class ImportSitemapCommand extends Command
                             'type' => 'links',
                             'url' => $url,
                         ],
-                        'options' => $this->linkOptions($url, (array)$collection->get('link_load_options')),
                     ],
                 ],
             ];
@@ -167,53 +166,5 @@ class ImportSitemapCommand extends Command
         $io->out('Done. Link added successfully: ' . count($entities));
 
         return null;
-    }
-
-    /**
-     * Get link options
-     *
-     * @param string $url URL
-     * @param array $linkLoadOptions Link load options
-     * @return array
-     */
-    protected function linkOptions(string $url, array $linkLoadOptions): array
-    {
-        $keys = [];
-        foreach ($linkLoadOptions as $item) {
-            unset($item['url']);
-            $keys = array_merge($keys, array_keys($item));
-        }
-        $keys = array_unique($keys);
-
-        $options = [];
-        foreach ($keys as $key) {
-            $options[$key] = $this->linkLoadOption($url, $key, $linkLoadOptions);
-        }
-
-        return $options;
-    }
-
-    /**
-     * Return option value of $name property
-     *
-     * @param string $url The URL
-     * @param string $name Prop name
-     * @param array $linkLoadOptions Link load options
-     * @return string
-     */
-    protected function linkLoadOption(string $url, string $name, array $linkLoadOptions): string
-    {
-        $options = array_filter($linkLoadOptions, function ($o) use ($url) {
-            return $o['url'] === $url;
-        });
-        $value = Hash::get($options, sprintf('0.%s', $name));
-        if (!empty($value)) {
-            return [$name => $value];
-        }
-        $options = array_filter($linkLoadOptions, function ($o) use ($url) {
-            return strpos($url, $o['url']) === 0;
-        });
-
-        return (string)Hash::get($options, sprintf('0.%s', $name));
     }
 }
