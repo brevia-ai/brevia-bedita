@@ -154,7 +154,6 @@ class ImportSitemapCommand extends Command
                             'type' => 'links',
                             'url' => $url,
                         ],
-                        'options' => $this->linkOptions($url, (array)$collection->get('link_load_options')),
                     ],
                 ],
             ];
@@ -167,28 +166,5 @@ class ImportSitemapCommand extends Command
         $io->out('Done. Link added successfully: ' . count($entities));
 
         return null;
-    }
-
-    /**
-     * Get link options
-     *
-     * @param string $url URL
-     * @param array $linkLoadOptions Link load options
-     * @return array
-     */
-    protected function linkOptions(string $url, array $linkLoadOptions): array
-    {
-        $options = array_filter($linkLoadOptions, function ($o) use ($url) {
-            return $o['url'] === $url;
-        });
-        $selector = Hash::get($options, '0.selector');
-        if (!empty($selector)) {
-            return compact('selector');
-        }
-        $options = array_filter($linkLoadOptions, function ($o) use ($url) {
-            return strpos($url, $o['url']) === 0;
-        });
-
-        return ['selector' => Hash::get($options, '0.selector')];
     }
 }
